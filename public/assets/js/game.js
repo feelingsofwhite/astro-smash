@@ -16,14 +16,14 @@ var Game = {
   scoreChange: function(delta){ score += delta; scoreText.text = "score: " + score; },
   makeBaddie: function (x, type)
   {
-    var self=this;
-    var baddie = game.add.sprite(x, 64, type)
-    game.physics.arcade.enable(baddie)
-    baddie.body.velocity.y = 75
+    var self = this;
+    var baddie = game.add.sprite(x, 64, type);
+    game.physics.arcade.enable(baddie);
+    baddie.body.velocity.y = 75;
     baddie.hitGround = function(){
-        self.scoreChange(-100)
-    }
-    baddies.push(baddie)
+        self.scoreChange(-100);
+    };
+    baddies.push(baddie);
   },
 
   preload: function () {
@@ -48,12 +48,12 @@ var Game = {
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  We will enable physics for any object that is created in this group
-    platforms = game.add.group()
-    platforms.enableBody = true
+    platforms = game.add.group();
+    platforms.enableBody = true;
 
-    ground = platforms.create(0, game.world.height - 60, 'ground')
+    ground = platforms.create(0, game.world.height - 60, 'ground');
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(2,2)
+    ground.scale.setTo(2,2);
     ground.body.immovable=true;
 
     this.bullets = [];
@@ -65,9 +65,9 @@ var Game = {
     this.bullets[1].exists(false);
     this.bullets[2].exists(false);
 
-    player = game.add.sprite(32, game.world.height -150, 'hero')
+    player = game.add.sprite(32, game.world.height -150, 'hero');
     //enable phaysics on player
-    game.physics.arcade.enable(player)
+    game.physics.arcade.enable(player);
 
 
     //player.body.bounce.y = 0.2
@@ -82,15 +82,15 @@ var Game = {
     }
 
 
-    cursors = game.input.keyboard.createCursorKeys()
-    scoreText = game.add.text(16,game.world.height - 48,'', {fontSize: '32px', fill: '#fff'})
+    cursors = game.input.keyboard.createCursorKeys();
+    scoreText = game.add.text(16,game.world.height - 48,'', {fontSize: '32px', fill: '#fff'});
     this.scoreChange(0);
-    debugText = game.add.text(16,16,'debug', {fontSize: '16px', fill: '#aaa'})
+    debugText = game.add.text(16,16,'debug', {fontSize: '16px', fill: '#aaa'});
 
-    this.makeBaddie(32, 'asteroid-lg')
-    this.makeBaddie(128, 'asteroid-sm')
-    this.makeBaddie(128+32, 'asteroid-sm')
-    this.makeBaddie(128+32+32, 'asteroid-sm')
+    this.makeBaddie(32, 'asteroid-lg');
+    this.makeBaddie(128, 'asteroid-sm');
+    this.makeBaddie(128+32, 'asteroid-sm');
+    this.makeBaddie(128+32+32, 'asteroid-sm');
   },
 
   update: function () {
@@ -103,19 +103,15 @@ var Game = {
     this.big1.y = this.big1.y +1;
 
     //reset players velocity (movement)
-    player.body.velocity.x = 0
-    player.body.velocity.y = 0
+    player.body.velocity.x = 0;
+    player.body.velocity.y = 0;
 
     if (cursors.left.isDown && cursors.right.isDown) {
-        player.faceCamera()
-    } else if (cursors.left.isDown)
-    {
-        //  Move to the left
+        player.faceCamera();
+    } else if (cursors.left.isDown) {
         player.body.velocity.x = -150;
     }
-    else if (cursors.right.isDown)
-    {
-        //  Move to the right
+    else if (cursors.right.isDown) {
         player.body.velocity.x = 150;
     }
 
@@ -144,8 +140,8 @@ var Game = {
       }
   },
   baddieHitGround: function (ground, baddie){
-      baddie.hitGround()
-      baddie.kill()
+      baddie.hitGround();
+      baddie.kill();
   }
 
 };

@@ -18,4 +18,4 @@ var Game_Over = {
     // change the state back to Game
     this.state.start('Game');
   }
-}
+};
