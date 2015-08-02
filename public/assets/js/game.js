@@ -14,10 +14,26 @@ var ground;
 
 var Game = {
   scoreChange: function(delta){ score += delta; scoreText.text = "score: " + score; },
-  makeBaddie: function (x, type)
+  makeBaddie: function (type)
   {
     var self = this;
-    var baddie = game.add.sprite(x, 64, type);
+    var image;
+    switch (type)
+    {
+      case "big":
+        image = "big" + (Math.floor((Math.random() * 5) + 1));
+        break;
+      case "small":
+        image = "small" + (Math.floor((Math.random() * 7) + 1));
+        break;
+      default:
+        image = type;
+        break;
+    }
+
+    var baddie = game.add.sprite(0, -64, image);
+    var padding = 16;
+    baddie.x = Math.floor((Math.random() * (game.world.width - baddie.width - (padding * 2)))) + padding;
     game.physics.arcade.enable(baddie);
     baddie.body.velocity.y = 75;
     baddie.hitGround = function(){
@@ -25,15 +41,37 @@ var Game = {
     };
     baddies.push(baddie);
   },
+  dropFromTheSky: function(){
+    switch (Math.floor((Math.random() * 7) ))
+    {
+      case 0:
+        this.makeBaddie("big")
+        break;
+      case 1:
+      case 2:
+      case 3:
+        this.makeBaddie("small")
+        break;      
+    }
+  },
 
   preload: function () {
     // here we load all theneeded resources for the level
     // in our case that's just two squares. Ane for a snake body and one for the apple
-
     game.load.image('big1', './assets/images/big1.png');
+    game.load.image('big2', './assets/images/big2.png');
+    game.load.image('big3', './assets/images/big3.png');
+    game.load.image('big4', './assets/images/big4.png');
+    game.load.image('big5', './assets/images/big5.png');
+    
+    game.load.image('small1', './assets/images/small1.png');
+    game.load.image('small2', './assets/images/small2.png');
+    game.load.image('small3', './assets/images/small3.png');
+    game.load.image('small4', './assets/images/small4.png');
+    game.load.image('small5', './assets/images/small5.png');
+    game.load.image('small6', './assets/images/small6.png');
+    game.load.image('small7', './assets/images/small7.png');
 
-    game.load.image('asteroid-lg', 'assets/asteroid-64.png');
-    game.load.image('asteroid-sm', 'assets/asteroid-32.png');
     game.load.image('hero', 'assets/images/hero.png');
     game.load.image('ground', 'assets/platform.png');
     game.load.image('bullet', 'assets/images/bullet.png');
@@ -42,7 +80,6 @@ var Game = {
   create: function () {
 
     game.stage.backgroundColor = '#061f27';
-    this.big1 = game.add.sprite(130, 0, 'big1');
 
     //  We're going to be using physics, so enable the Arcade Physics system
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -65,7 +102,7 @@ var Game = {
     //this.bullets[1].exists(false);
     //this.bullets[2].exists(false);
 
-    player = game.add.sprite(32, game.world.height -150, 'hero');
+    player = game.add.sprite(32, game.world.height - ground.height-32, 'hero');
     //enable phaysics on player
     game.physics.arcade.enable(player);
 
@@ -87,18 +124,15 @@ var Game = {
     this.scoreChange(0);
     debugText = game.add.text(16,16,'debug', {fontSize: '16px', fill: '#aaa'});
 
-    this.makeBaddie(32, 'asteroid-lg');
-    this.makeBaddie(128, 'asteroid-sm');
-    this.makeBaddie(128+32, 'asteroid-sm');
-    this.makeBaddie(128+32+32, 'asteroid-sm');
+    this.makeBaddie('small');
+    this.makeBaddie('small');
+    this.makeBaddie('small');
+    this.makeBaddie('big');
+
+    game.time.events.loop(Phaser.Timer.SECOND * 4, this.dropFromTheSky, this);
   },
 
   update: function () {
-    
-    // do game stuff only if the counter is aliquot to (10 - the game speed).
-    // the higher the speed, the more  frequently this is fulfilled,
-    // making the snake move faster.
-    this.big1.y = this.big1.y +1;
 
     //reset players velocity (movement)
     player.body.velocity.x = 0;
