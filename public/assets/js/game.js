@@ -34,7 +34,7 @@ var Game = {
 
     game.load.image('asteroid-lg', 'assets/asteroid-64.png');
     game.load.image('asteroid-sm', 'assets/asteroid-32.png');
-    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+    game.load.image('hero', 'assets/images/hero.png');
     game.load.image('ground', 'assets/platform.png');
   },
   create: function () {
@@ -54,18 +54,19 @@ var Game = {
     ground.scale.setTo(2,2)
     ground.body.immovable=true;
     
-    player = game.add.sprite(32, game.world.height -150, 'dude')
+    player = game.add.sprite(32, game.world.height -150, 'hero')
     //enable phaysics on player
     game.physics.arcade.enable(player)
 
     //player.body.bounce.y = 0.2
     //player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
-    player.animations.add('left', [0,1,2,3], 10, true)
-    player.animations.add('right', [5,6,7,8], 10, true)
-    player.faceCamera = function() {
-        player.animations.stop()
-        player.frame = 4;
+    player.lives = [];
+    for(var i=3;i>0;i--)
+    {
+      player.lives.push(
+          game.add.sprite(game.world.width - (i*(player.width+16)), game.world.height - player.height - 16, 'hero')
+        );
     }
 
     
@@ -76,6 +77,8 @@ var Game = {
 
     this.makeBaddie(32, 'asteroid-lg')
     this.makeBaddie(128, 'asteroid-sm')
+    this.makeBaddie(128+32, 'asteroid-sm')
+    this.makeBaddie(128+32+32, 'asteroid-sm')
   },
 
   update: function () {
@@ -95,24 +98,38 @@ var Game = {
     {
         //  Move to the left
         player.body.velocity.x = -150;
-
-        player.animations.play('left');
     }
     else if (cursors.right.isDown)
     {
         //  Move to the right
         player.body.velocity.x = 150;
-
-        player.animations.play('right');
-    } else {
-        player.faceCamera()
     }
     
-    game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this)
-
+    game.physics.arcade.overlap(player, baddies, this.baddieHitPlayer, null, this);
+    if (player.alive)
+    {
+      game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
+    }
     debugText.text = 
-        "player.body.x=" + player.body.x
-  },
+        "player.body.x=" + player.body.x;
+  },  
+  baddieHitPlayer: function (player, baddie){
+      var self = this;
+      baddie.kill();
+      var i = player.lives.length-1;
+      while((i>=0) && (!player.lives[i].exists)){
+        i--;
+      }
+      if (i === -1) {
+        player.kill();        
+        window.setTimeout(function(){
+          self.state.start('Game_Over');
+        }, 2000);
+      } else {
+        player.lives[i].kill();
+      }
+
+  },  
   baddieHitGround: function (ground, baddie){
       baddie.hitGround()
       baddie.kill()
