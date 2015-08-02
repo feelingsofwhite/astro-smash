@@ -36,6 +36,8 @@ var Game = {
     game.load.image('asteroid-sm', 'assets/asteroid-32.png');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
     game.load.image('ground', 'assets/platform.png');
+    game.load.image('bullet', 'assets/images/bullet.png');
+    this.fireKey = game.input.keyboard.addKey(Phaser.keyboard.SPACEBAR);
   },
   create: function () {
 
@@ -53,10 +55,20 @@ var Game = {
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
     ground.scale.setTo(2,2)
     ground.body.immovable=true;
-    
+
+    this.bullets = [];
+    this.bullets[0] = game.add.sprite(0, 0, 'bullet');
+    this.bullets[1] = game.add.sprite(0, 0, 'bullet');
+    this.bullets[2] = game.add.sprite(0, 0, 'bullet');
+
+    this.bullets[0].exists(false);
+    this.bullets[1].exists(false);
+    this.bullets[2].exists(false);
+
     player = game.add.sprite(32, game.world.height -150, 'dude')
     //enable phaysics on player
     game.physics.arcade.enable(player)
+
 
     //player.body.bounce.y = 0.2
     //player.body.gravity.y = 300;
@@ -68,7 +80,7 @@ var Game = {
         player.frame = 4;
     }
 
-    
+
     cursors = game.input.keyboard.createCursorKeys()
     scoreText = game.add.text(16,game.world.height - 48,'', {fontSize: '32px', fill: '#fff'})
     this.scoreChange(0);
@@ -79,7 +91,9 @@ var Game = {
   },
 
   update: function () {
-
+    this.fireKey.onPress.add(function () {
+        
+    });
     // do game stuff only if the counter is aliquot to (10 - the game speed).
     // the higher the speed, the more  frequently this is fulfilled,
     // making the snake move faster.
@@ -107,10 +121,10 @@ var Game = {
     } else {
         player.faceCamera()
     }
-    
+
     game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this)
 
-    debugText.text = 
+    debugText.text =
         "player.body.x=" + player.body.x
   },
   baddieHitGround: function (ground, baddie){
