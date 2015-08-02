@@ -19,7 +19,8 @@
 
         function preload() {
 
-            game.load.image('asteroid', 'assets/asteroid.png');
+            game.load.image('asteroid-lg', 'assets/asteroid-64.png');
+            game.load.image('asteroid-sm', 'assets/asteroid-32.png');
             game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
             game.load.image('ground', 'assets/platform.png');
 
@@ -29,8 +30,11 @@
         var player
         var cursors
         var score = 0
+        var scoreChange = function(delta){ score += delta; scoreText.text = "score: " + score; }
         var scoreText
         var debugText
+        var baddies=[]
+        var ground
 
         function create() {
             
@@ -41,7 +45,7 @@
             platforms = game.add.group()
             platforms.enableBody = true
 
-            var ground = platforms.create(0, game.world.height - 60, 'ground')
+            ground = platforms.create(0, game.world.height - 60, 'ground')
             //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
             ground.scale.setTo(2,2)
             ground.body.immovable=true;
@@ -62,15 +66,25 @@
 
             
             cursors = game.input.keyboard.createCursorKeys()
-            scoreText = game.add.text(16,16,'score:0', {fontSize: '32px', fill: '#000'})
-            debugText = game.add.text(16,64,'debug', {fontSize: '16px', fill: '#000'})
+            scoreText = game.add.text(16,game.world.height - 48,'', {fontSize: '32px', fill: '#fff'})
+            scoreChange(0);
+            debugText = game.add.text(16,16,'debug', {fontSize: '16px', fill: '#aaa'})
 
-            
-            //  Being mp3 files these take time to decode, so we can't play them instantly
-            //  Using setDecodedCallback we can be notified when they're ALL ready for use.
-            //  The audio files could decode in ANY order, we can never be sure which it'll be.
+            makeBaddie(32, 'asteroid-lg')
+            makeBaddie(128, 'asteroid-sm')
 
-            //game.sound.setDecodedCallback([ hi, bang ], start, this);
+
+
+        }
+        function makeBaddie(x, type)
+        {
+            var baddie = game.add.sprite(x, 64, type)
+            game.physics.arcade.enable(baddie)
+            baddie.body.velocity.y = 75
+            baddie.hitGround = function(){
+                scoreChange(-100)
+            }
+            baddies.push(baddie)
 
         }
 
@@ -97,9 +111,17 @@
             } else {
                 player.faceCamera()
             }
-                
+            
+            game.physics.arcade.overlap(ground, baddies, baddieHitGround, null, this)
+
+            debugText.text = 
+                "player.body.x=" + player.body.x
         }
 
+        function baddieHitGround(ground, baddie){
+            baddie.hitGround()
+            baddie.kill()
+        }
 
     };
 
