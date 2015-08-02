@@ -41,7 +41,7 @@ gulp.task('js', function(){
 //         return gulp.src('index.html').pipe(connect.reload())
 // })
 
-var port = 2002; 
+var port = 2003; 
 gulp.task('connect', function() {
   console.log('server started')
   connect.server({
