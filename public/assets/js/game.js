@@ -37,7 +37,7 @@ var Game = {
     game.load.image('hero', 'assets/images/hero.png');
     game.load.image('ground', 'assets/platform.png');
     game.load.image('bullet', 'assets/images/bullet.png');
-    this.fireKey = game.input.keyboard.addKey(Phaser.keyboard.SPACEBAR);
+    this.fireKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   },
   create: function () {
 
@@ -61,9 +61,9 @@ var Game = {
     this.bullets[1] = game.add.sprite(0, 0, 'bullet');
     this.bullets[2] = game.add.sprite(0, 0, 'bullet');
 
-    this.bullets[0].exists(false);
-    this.bullets[1].exists(false);
-    this.bullets[2].exists(false);
+    this.bullets[0].exists = false;
+    //this.bullets[1].exists(false);
+    //this.bullets[2].exists(false);
 
     player = game.add.sprite(32, game.world.height -150, 'hero')
     //enable phaysics on player
@@ -94,9 +94,7 @@ var Game = {
   },
 
   update: function () {
-    this.fireKey.onPress.add(function () {
-        
-    });
+    
     // do game stuff only if the counter is aliquot to (10 - the game speed).
     // the higher the speed, the more  frequently this is fulfilled,
     // making the snake move faster.
@@ -124,9 +122,9 @@ var Game = {
     {
       game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
     }
-    debugText.text = 
+    debugText.text =
         "player.body.x=" + player.body.x;
-  },  
+  },
   baddieHitPlayer: function (player, baddie){
       var self = this;
       baddie.kill();
@@ -135,7 +133,7 @@ var Game = {
         i--;
       }
       if (i === -1) {
-        player.kill();        
+        player.kill();
         window.setTimeout(function(){
           self.state.start('Game_Over');
         }, 2000);
