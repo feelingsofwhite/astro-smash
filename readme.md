@@ -9,3 +9,5 @@
     gulp  
 ````
 by default this starts a local server on port 2002 and launches browser at it.  watch for changes & livereload
+kewl links
+http://phaser.io/examples/v2/arcade-physics/shoot-the-pointer
