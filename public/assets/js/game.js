@@ -132,6 +132,9 @@ var Game = {
 
     game.time.events.loop(Phaser.Timer.SECOND * 4, this.dropFromTheSky, this);
 
+    var key = game.input.keyboard.addKey(Phaser.Keyboard.T); //see here: http://docs.phaser.io/Keyboard.js.html for the keycodes
+    key.onDown.add(this.teleport, this);
+
 	this.fireDown = false;
   },
 
@@ -209,6 +212,10 @@ var Game = {
       }
     }
     console.log("gun's empty, yo!");
+  },
+  teleport: function(){
+    var padding = 2;
+    player.x = Math.floor((Math.random() * (game.world.width - player.width - (padding * 2)))) + padding;
   }
 
 };
