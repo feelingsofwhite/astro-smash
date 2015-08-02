@@ -51,7 +51,7 @@ var Game = {
       case 2:
       case 3:
         this.makeBaddie("small")
-        break;      
+        break;
     }
   },
 
@@ -63,7 +63,7 @@ var Game = {
     game.load.image('big3', './assets/images/big3.png');
     game.load.image('big4', './assets/images/big4.png');
     game.load.image('big5', './assets/images/big5.png');
-    
+
     game.load.image('small1', './assets/images/small1.png');
     game.load.image('small2', './assets/images/small2.png');
     game.load.image('small3', './assets/images/small3.png');
@@ -143,7 +143,6 @@ var Game = {
       }
     }
 
-    this.big1.y = this.big1.y +1;
 
     if (this.fireKey.isDown && !this.fireDown) {
       console.log('pewpew');
@@ -161,7 +160,7 @@ var Game = {
     player.body.velocity.y = 0;
 
     if (cursors.left.isDown && cursors.right.isDown) {
-        player.faceCamera();
+        // do nothing
     } else if (cursors.left.isDown) {
         player.body.velocity.x = -150;
     }
