@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Astro Smash!</title>
+        
+<!-- 
+        <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+         -->
+        <script src="lib/phaser.min.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+        var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+        function preload() {
+
+            game.load.image('asteroid', 'assets/asteroid.png');
+            game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+            game.load.image('ground', 'assets/platform.png');
+
+        }
+
+        var platforms
+        var player
+        var cursors
+        var score = 0
+        var scoreText
+        var debugText
+
+        function create() {
+            
+            //  We're going to be using physics, so enable the Arcade Physics system
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+
+            //  We will enable physics for any object that is created in this group
+            platforms = game.add.group()
+            platforms.enableBody = true
+
+            var ground = platforms.create(0, game.world.height - 60, 'ground')
+            //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+            ground.scale.setTo(2,2)
+            ground.body.immovable=true;
+            
+            player = game.add.sprite(32, game.world.height -150, 'dude')
+            //enable phaysics on player
+            game.physics.arcade.enable(player)
+
+            //player.body.bounce.y = 0.2
+            //player.body.gravity.y = 300;
+            player.body.collideWorldBounds = true;
+            player.animations.add('left', [0,1,2,3], 10, true)
+            player.animations.add('right', [5,6,7,8], 10, true)
+            player.faceCamera = function() {
+                player.animations.stop()
+                player.frame = 4;
+            }
+
+            
+            cursors = game.input.keyboard.createCursorKeys()
+            scoreText = game.add.text(16,16,'score:0', {fontSize: '32px', fill: '#000'})
+            debugText = game.add.text(16,64,'debug', {fontSize: '16px', fill: '#000'})
+
+            
+            //  Being mp3 files these take time to decode, so we can't play them instantly
+            //  Using setDecodedCallback we can be notified when they're ALL ready for use.
+            //  The audio files could decode in ANY order, we can never be sure which it'll be.
+
+            //game.sound.setDecodedCallback([ hi, bang ], start, this);
+
+        }
+
+        function update() {
+            //reset players velocity (movement)
+            player.body.velocity.x = 0
+            player.body.velocity.y = 0
+
+            if (cursors.left.isDown && cursors.right.isDown) {
+                player.faceCamera()
+            } else if (cursors.left.isDown)
+            {
+                //  Move to the left
+                player.body.velocity.x = -150;
+
+                player.animations.play('left');
+            }
+            else if (cursors.right.isDown)
+            {
+                //  Move to the right
+                player.body.velocity.x = 150;
+
+                player.animations.play('right');
+            } else {
+                player.faceCamera()
+            }
+                
+        }
+
+
+    };
+
+    </script>
+    </body>
+</html>
