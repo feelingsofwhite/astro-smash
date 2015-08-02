@@ -40,7 +40,6 @@ var Game = {
     this.fireKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   },
   create: function () {
-
     game.stage.backgroundColor = '#061f27';
     this.big1 = game.add.sprite(130, 0, 'big1');
 
@@ -60,10 +59,13 @@ var Game = {
     this.bullets[0] = game.add.sprite(0, 0, 'bullet');
     this.bullets[1] = game.add.sprite(0, 0, 'bullet');
     this.bullets[2] = game.add.sprite(0, 0, 'bullet');
+    game.physics.arcade.enable(this.bullets[0]);
+    game.physics.arcade.enable(this.bullets[1]);
+    game.physics.arcade.enable(this.bullets[2]);
 
     this.bullets[0].exists = false;
-    //this.bullets[1].exists(false);
-    //this.bullets[2].exists(false);
+    this.bullets[1].exists = false;
+    this.bullets[2].exists = false;
 
     player = game.add.sprite(32, game.world.height -150, 'hero');
     //enable phaysics on player
@@ -81,7 +83,6 @@ var Game = {
         );
     }
 
-
     cursors = game.input.keyboard.createCursorKeys();
     scoreText = game.add.text(16,game.world.height - 48,'', {fontSize: '32px', fill: '#fff'});
     this.scoreChange(0);
@@ -91,14 +92,33 @@ var Game = {
     this.makeBaddie(128, 'asteroid-sm');
     this.makeBaddie(128+32, 'asteroid-sm');
     this.makeBaddie(128+32+32, 'asteroid-sm');
+    this.fireDown = false;
   },
 
   update: function () {
-    
+    for (var i = 0; i < this.bullets.length; i++) {
+      var bullet = this.bullets[i];
+      if (bullet.exists && bullet.y <= 0) {
+        bullet.exists = false;
+      }
+    }
+
+
     // do game stuff only if the counter is aliquot to (10 - the game speed).
     // the higher the speed, the more  frequently this is fulfilled,
     // making the snake move faster.
     this.big1.y = this.big1.y +1;
+
+    if (this.fireKey.isDown && !this.fireDown) {
+      console.log('pewpew');
+      this.firePhasoidCannons();
+      this.fireDown = true;
+    }
+
+    if (this.fireKey.isUp && this.fireDown) {
+      console.log('stopfiring!');
+      this.fireDown = false;
+    }
 
     //reset players velocity (movement)
     player.body.velocity.x = 0;
@@ -140,6 +160,20 @@ var Game = {
   baddieHitGround: function (ground, baddie){
       baddie.hitGround();
       baddie.kill();
+  },
+  firePhasoidCannons: function () {
+    for (var i = 0; i < this.bullets.length; i++) {
+      var bullet = this.bullets[i];
+      if (!bullet.exists) {
+        bullet.y = player.top;
+        bullet.x = player.left + (player.width/2);
+        bullet.body.velocity.y = -75;
+        bullet.exists = true;
+        break;
+
+      }
+    }
+    console.log("gun's empty, yo!");
   }
 
 };
