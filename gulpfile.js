@@ -63,7 +63,7 @@ gulp.task('watch', function() {
     };
     gulp.watch('public/**/*.js', ['js']).on('change', logevent);
     //gulp.watch('public/**/*.html', ['reload']).on('change', logevent);
-    watch('public/**/*.html').pipe(connect.reload())
+    watch(['public/**/*.html', 'public/**/*.js']).pipe(connect.reload())
     //gulp.watch('**/*.less', ['less']).on('change', logevent);
 });
 
