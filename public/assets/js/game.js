@@ -17,7 +17,7 @@ var Game = {
   makeBaddie: function (type)
   {
     var self = this;
-    var image;
+    var image = type;
     switch (type)
     {
       case "big":
@@ -26,31 +26,56 @@ var Game = {
       case "small":
         image = "small" + (Math.floor((Math.random() * 7) + 1));
         break;
-      default:
-        image = type;
-        break;
     }
 
     var baddie = game.add.sprite(0, -64, image);
     var padding = 16;
-    baddie.x = Math.floor((Math.random() * (game.world.width - baddie.width - (padding * 2)))) + padding;
+    baddie.anchor.set(0.5,0.5);
+    baddie.x = Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
     game.physics.arcade.enable(baddie);
-    baddie.body.velocity.y = 75;
-    baddie.hitGround = function(){
-        self.scoreChange(-100);
-    };
     baddies.push(baddie);
+    switch(type)
+    {
+      case "big":
+      case "small":
+        baddie.body.velocity.y = 50 + Math.floor((Math.random() * 25));
+        baddie.hitGround = function(){
+            self.scoreChange(-100);
+        };
+        baddie.think = function(){};
+        break;
+      case "seaker":
+        var speed = 75 + Math.floor((Math.random() * 25));
+        baddie.body.velocity.y = speed;
+        baddie.hitGround = function(){};
+        baddie.think = function(){
+          var delta = player.x - baddie.x;
+          var qty = Math.abs(delta);
+          if (qty > 2) //solve unknown shudder issue
+          {
+            var direction = delta / qty; // -1 or +1
+            baddie.body.velocity.x = direction * speed;
+          } else {
+            baddie.body.velocity.x = 0;
+          }
+        }
+        break;
+    }
+    
   },
   dropFromTheSky: function(){
     switch (Math.floor((Math.random() * 7) ))
     {
       case 0:
-        this.makeBaddie("big")
+        this.makeBaddie("big");
         break;
       case 1:
+        this.makeBaddie("seaker");
+        break;
       case 2:
       case 3:
-        this.makeBaddie("small")
+      case 4:
+        this.makeBaddie("small");
         break;
     }
   },
@@ -71,6 +96,8 @@ var Game = {
     game.load.image('small5', './assets/images/small5.png');
     game.load.image('small6', './assets/images/small6.png');
     game.load.image('small7', './assets/images/small7.png');
+
+    game.load.image('seaker', './assets/images/seaker.png');
 
     game.load.image('hero', 'assets/images/hero.png');
     game.load.image('ground', 'assets/platform.png');
@@ -104,7 +131,9 @@ var Game = {
     this.bullets[1].exists = false;
     this.bullets[2].exists = false;
 
-    player = game.add.sprite(32, game.world.height - ground.height-32, 'hero');
+    player = game.add.sprite(32, 0, 'hero');
+    player.anchor.set(0.5,0.5);
+    player.y = game.world.height - ground.height - player.offsetY
     //enable phaysics on player
     game.physics.arcade.enable(player);
 
@@ -129,6 +158,7 @@ var Game = {
     this.makeBaddie('small');
     this.makeBaddie('small');
     this.makeBaddie('big');
+    this.makeBaddie('seaker');
 
     game.time.events.loop(Phaser.Timer.SECOND * 4, this.dropFromTheSky, this);
 
@@ -175,6 +205,11 @@ var Game = {
     if (player.alive)
     {
       game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
+    }
+    for (var i=baddies.length-1;i>=0;i--)
+    {
+      var baddie = baddies[i];
+      baddie.think();
     }
     debugText.text =
         "player.body.x=" + player.body.x;
