@@ -34,6 +34,9 @@ var Game = {
     baddie.x = Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
     game.physics.arcade.enable(baddie);
     baddies.push(baddie);
+    baddie.shotUp = function () {
+      self.scoreChange(200);
+    };
     switch(type)
     {
       case "big":
@@ -58,10 +61,9 @@ var Game = {
           } else {
             baddie.body.velocity.x = 0;
           }
-        }
+        };
         break;
     }
-    
   },
   dropFromTheSky: function(){
     switch (Math.floor((Math.random() * 7) ))
@@ -133,7 +135,7 @@ var Game = {
 
     player = game.add.sprite(32, 0, 'hero');
     player.anchor.set(0.5,0.5);
-    player.y = game.world.height - ground.height - player.offsetY
+    player.y = game.world.height - ground.height - player.offsetY;
     //enable phaysics on player
     game.physics.arcade.enable(player);
 
@@ -169,7 +171,9 @@ var Game = {
   },
 
   update: function () {
-    for (var i = 0; i < this.bullets.length; i++) {
+    var i;
+
+    for (i = 0; i < this.bullets.length; i++) {
       var bullet = this.bullets[i];
       if (bullet.exists && bullet.y <= 0) {
         bullet.exists = false;
@@ -201,12 +205,16 @@ var Game = {
         player.body.velocity.x = 150;
     }
 
+    for (i = 0; i < this.bullets.length; i++) {
+      game.physics.arcade.overlap(this.bullets[i], baddies, this.bulletHitBaddie, null, this);
+    }
+
     game.physics.arcade.overlap(player, baddies, this.baddieHitPlayer, null, this);
     if (player.alive)
     {
       game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
     }
-    for (var i=baddies.length-1;i>=0;i--)
+    for (i=baddies.length-1;i>=0;i--)
     {
       var baddie = baddies[i];
       baddie.think();
@@ -247,6 +255,11 @@ var Game = {
       }
     }
     console.log("gun's empty, yo!");
+  },
+  bulletHitBaddie: function (bullet, baddie) {
+    baddie.shotUp();
+    baddie.kill();
+    bullet.exists = false;
   },
   teleport: function(){
     var padding = 2;
