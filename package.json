@@ -1,0 +1,23 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "gunna make me a game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "beepbeep": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-connect": "^2.2.0",
+    "gulp-jshint": "^1.11.2",
+    "gulp-open": "^0.3.2",
+    "gulp-plumber": "^1.0.1",
+    "gulp-watch": "^4.3.1",
+    "http-server": "^0.8.0",
+    "jshint-stylish": "^2.0.1",
+    "open": "0.0.5"
+  }
+}
