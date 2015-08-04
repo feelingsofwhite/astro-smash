@@ -66,6 +66,9 @@ var Game = {
     }
   },
   dropFromTheSky: function(){
+    if (this.gameover) {
+        return;
+    }
     switch (Math.floor((Math.random() * 7) ))
     {
       case 0:
@@ -168,9 +171,13 @@ var Game = {
     key.onDown.add(this.teleport, this);
 
 	this.fireDown = false;
+    this.gameover = false;
   },
 
   update: function () {
+    if (this.gameover) {
+        return;
+    }
     var i;
 
     for (i = 0; i < this.bullets.length; i++) {
@@ -179,7 +186,6 @@ var Game = {
         bullet.exists = false;
       }
     }
-
 
     if (this.fireKey.isDown && !this.fireDown) {
       console.log('pewpew');
@@ -210,10 +216,9 @@ var Game = {
     }
 
     game.physics.arcade.overlap(player, baddies, this.baddieHitPlayer, null, this);
-    if (player.alive)
-    {
-      game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
-    }
+    
+    game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
+    
     for (i=baddies.length-1;i>=0;i--)
     {
       var baddie = baddies[i];
@@ -223,20 +228,32 @@ var Game = {
         "player.body.x=" + player.body.x;
   },
   baddieHitPlayer: function (player, baddie){
+      if (this.gameover) {
+        return;
+      }
       var self = this;
-      baddie.kill();
-      var i = player.lives.length-1;
-      while((i>=0) && (!player.lives[i].exists)){
-        i--;
+      var life = player.lives.length-1;
+      while((life>=0) && (!player.lives[life].exists)){
+        life--;
       }
-      if (i === -1) {
-        player.kill();
-        window.setTimeout(function(){
-          self.state.start('Game_Over');
-        }, 2000);
+      if (life === -1) {
+        self.gameOverManGAMEOVER(baddie);
       } else {
-        player.lives[i].kill();
+        baddie.kill();
+        player.lives[life].kill();
       }
+  },
+  gameOverManGAMEOVER: function(responsible){
+    this.gameover = true;
+    player.body.velocity.x = 0;
+    for (i=baddies.length-1;i>=0;i--)
+    {
+      var baddie = baddies[i];
+      baddie.body.velocity.x = 0;
+      baddie.body.velocity.y = 0;
+    }
+    game.time.events.add(Phaser.Timer.SECOND * 2, function(){ player.kill(); responsible.kill(); }, this);
+    game.time.events.add(Phaser.Timer.SECOND * 3, function(){ this.state.start('Game_Over'); }, this);
   },
   baddieHitGround: function (ground, baddie){
       baddie.hitGround();
