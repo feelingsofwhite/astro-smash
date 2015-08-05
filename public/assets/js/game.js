@@ -216,9 +216,9 @@ var Game = {
     }
 
     game.physics.arcade.overlap(player, baddies, this.baddieHitPlayer, null, this);
-    
+
     game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
-    
+
     for (i=baddies.length-1;i>=0;i--)
     {
       var baddie = baddies[i];
@@ -265,7 +265,7 @@ var Game = {
       if (!bullet.exists) {
         bullet.y = player.top;
         bullet.x = player.left + (player.width/2);
-        bullet.body.velocity.y = -75;
+        bullet.body.velocity.y = -500;
         bullet.exists = true;
         break;
 
