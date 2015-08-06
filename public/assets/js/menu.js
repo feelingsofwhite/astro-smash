@@ -13,6 +13,6 @@ var Menu = {
   },
   startGame: function () {
     // change the state to the actual game
-    this.state.start('Game');
+    game.state.start('Game');
   }
 };

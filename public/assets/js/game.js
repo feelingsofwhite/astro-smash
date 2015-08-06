@@ -3,13 +3,12 @@ var snake, apple, squareSize, score, speed,
   addNew, cursors, scoreTextValue, speedTextValue,
   textStyle_Key, textStyle_Value;
 
+var score;
 var platforms;
 var player;
 var cursors;
-var score = 0;
 var scoreText;
 var debugText;
-var baddies=[];
 var ground;
 
 var Game = {
@@ -33,7 +32,7 @@ var Game = {
     baddie.anchor.set(0.5,0.5);
     baddie.x = Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
     game.physics.arcade.enable(baddie);
-    baddies.push(baddie);
+    this.baddies.push(baddie);
     baddie.shotUp = function () {
       self.scoreChange(200);
     };
@@ -110,6 +109,9 @@ var Game = {
     this.fireKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   },
   create: function () {
+    score = 0;
+    this.baddies = [];
+
     game.stage.backgroundColor = '#061f27';
 
     //  We're going to be using physics, so enable the Arcade Physics system
@@ -212,16 +214,20 @@ var Game = {
     }
 
     for (i = 0; i < this.bullets.length; i++) {
-      game.physics.arcade.overlap(this.bullets[i], baddies, this.bulletHitBaddie, null, this);
+      game.physics.arcade.overlap(this.bullets[i], this.baddies, this.bulletHitBaddie, null, this);
     }
 
-    game.physics.arcade.overlap(player, baddies, this.baddieHitPlayer, null, this);
+    game.physics.arcade.overlap(player, this.baddies, this.baddieHitPlayer, null, this);
+    
+    if (this.gameover) {
+      return;
+    }
 
-    game.physics.arcade.overlap(ground, baddies, this.baddieHitGround, null, this);
+    game.physics.arcade.overlap(ground, this.baddies, this.baddieHitGround, null, this);
 
-    for (i=baddies.length-1;i>=0;i--)
+    for (i=this.baddies.length-1;i>=0;i--)
     {
-      var baddie = baddies[i];
+      var baddie = this.baddies[i];
       baddie.think();
     }
     debugText.text =
@@ -246,9 +252,9 @@ var Game = {
   gameOverManGAMEOVER: function(responsible){
     this.gameover = true;
     player.body.velocity.x = 0;
-    for (i=baddies.length-1;i>=0;i--)
+    for (i=this.baddies.length-1;i>=0;i--)
     {
-      var baddie = baddies[i];
+      var baddie = this.baddies[i];
       baddie.body.velocity.x = 0;
       baddie.body.velocity.y = 0;
     }
