@@ -13,6 +13,9 @@ var plumber = require('gulp-plumber');
 var beep = require('beepbeep');
 var watch = require('gulp-watch');
 
+var gutil = require('gulp-util');
+var ftp = require('vinyl-ftp');
+
 gulp.task('lib', function(){
     return gulp
         .src('./bower_components/phaser/build/*.js')
@@ -67,5 +70,31 @@ gulp.task('watch', function() {
     //gulp.watch('**/*.less', ['less']).on('change', logevent);
 });
 
+
+//bad thing note: this updates newer, but leaves old files lying around :(, thus
+//todo: use conn.rmdir to blow away target dir entirely allowing for a clean upload
+// or fancier, investigate conn.filter to orphaned files and delete them, for a full sync routine, but that sounds like a bit of work
+
+gulp.task( 'deploy', function() {
+ 
+    var conn = ftp.create( {
+        host:     'feelingsofwhite.com',
+        user:     'jameslikesbeer',
+        password: 'jameslikesbeer',
+        log:      gutil.log
+    } );
+ 
+    var globs = [
+        'public/**', //todo: build to a dest/ folder, using cdnify, so can upload without large phaser.io upload
+    ];
+ 
+    // using base = '.' will transfer everything to /public_html correctly 
+    // turn off buffering in gulp.src for best performance 
+ 
+    return gulp.src( globs, { base: './public/', buffer: false } ) 
+        .pipe( conn.newerOrDifferentSize( '/games/astrosmash' ) ) // only upload newer files or files of differente size
+        .pipe( conn.dest( '/games/astrosmash' ) );
+ 
+} );
 
 gulp.task('default', ['lib', 'js', 'connect', 'launch', 'watch']);
