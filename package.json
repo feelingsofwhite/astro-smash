@@ -4,7 +4,7 @@
   "description": "a reimplementation of intellivision's astro smash in phaser.io",
   "main": "na",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp test"
   },
   "author": "@hadaad, @feelingsofwhite",
   "license": "MIT",

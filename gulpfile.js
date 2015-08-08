@@ -19,6 +19,14 @@ gulp.task('lib', function(){
         .pipe(gulp.dest('public/lib'))
 });
 
+gulp.task('test', function(){
+    return gulp
+      .src(['public/**/*.js', '!public/lib/**'])
+      .pipe(jshint())
+      .pipe(jshint.reporter(jshintStylish))
+      .pipe(jshint.reporter('fail')) // fail on errors or warnings
+});
+
 gulp.task('js', function(){
     return gulp
       .src(['public/**/*.js', '!public/lib/**'])
