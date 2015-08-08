@@ -1,5 +1,7 @@
 A reimplementation of intellivision's astro smash in phaser.io
 
+[![Build Status](https://travis-ci.org/feelingsofwhite/astrosmash.svg?branch=master)](https://travis-ci.org/feelingsofwhite/astrosmash)
+
 # Setup
 Install [Node.js](https://nodejs.org/download/) and `npm install -g gulp bower`
 ````
@@ -10,8 +12,10 @@ Install [Node.js](https://nodejs.org/download/) and `npm install -g gulp bower`
 
 this builds & jshints & starts a local server on port 2003 & launches browser at it.  watch for changes & livereload.
 
-##### Reference
-[Video of Astro Smash](https://www.youtube.com/watch?v=cokygJeWomQ) ~ could also be pilliaged for reference graphics and audio
+##### Links & etc
+* [Reference Video of Astro Smash](https://www.youtube.com/watch?v=cokygJeWomQ) ~ could also be pilliaged for reference graphics and audio
+* [Builds](https://travis-ci.org/feelingsofwhite/astrosmash/branches) thanks to Travis CI
+* [Shoot The Pointer](http://phaser.io/examples/v2/arcade-physics/shoot-the-pointer) example/tutorial
 
 ##### Todo
 * make bullets bigger
@@ -27,7 +31,3 @@ this builds & jshints & starts a local server on port 2003 & launches browser at
 * harder as time goes on, easier after a death (group variables into config)
 * earn extra lives very 1000 
 * background (and color changes)
-
-
-##### Random Links
-http://phaser.io/examples/v2/arcade-physics/shoot-the-pointer
