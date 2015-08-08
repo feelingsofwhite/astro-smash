@@ -229,10 +229,16 @@ var Game = {
 
     game.physics.arcade.overlap(ground, this.baddies, this.baddieHitGround, null, this);
 
+
+
     for (i=this.baddies.length-1;i>=0;i--)
     {
       var baddie = this.baddies[i];
       baddie.think();
+      if (baddie.alive === false) {
+        var a = this.baddies.indexOf(baddie);
+        this.baddies.splice(a, 1);
+      }
     }
     debugText.text =
         "player.body.x=" + player.body.x;
@@ -251,9 +257,6 @@ var Game = {
       } else {
         baddie.kill();
         player.lives[life].kill();
-        var a = this.baddies.indexOf(baddie);
-        this.baddies.splice(baddie, 1);
-
       }
   },
   gameOverManGAMEOVER: function(responsible){
@@ -271,9 +274,6 @@ var Game = {
   baddieHitGround: function (ground, baddie){
       baddie.hitGround();
       baddie.kill();
-      var a = this.baddies.indexOf(baddie);
-      this.baddies.splice(baddie, 1);
-
   },
   firePhasoidCannons: function () {
     for (var i = 0; i < this.bullets.length; i++) {
@@ -284,7 +284,6 @@ var Game = {
         bullet.body.velocity.y = -500;
         bullet.exists = true;
         break;
-
       }
     }
     console.log("gun's empty, yo!");
@@ -292,9 +291,6 @@ var Game = {
   bulletHitBaddie: function (bullet, baddie) {
     baddie.shotUp();
     baddie.kill();
-    var a = this.baddies.indexOf(baddie);
-    this.baddies.splice(baddie, 1);
-
     bullet.exists = false;
   },
   teleport: function(){
