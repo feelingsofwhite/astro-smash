@@ -1,13 +1,13 @@
 {
-  "name": "snake",
+  "name": "astrosmash",
   "version": "1.0.0",
-  "description": "gunna make me a game",
-  "main": "index.js",
+  "description": "a reimplementation of intellivision's astro smash in phaser.io",
+  "main": "na",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "@hadaad, @feelingsofwhite",
+  "license": "MIT",
   "devDependencies": {
     "beepbeep": "^1.2.0",
     "gulp": "^3.9.0",
