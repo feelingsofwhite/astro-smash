@@ -15,70 +15,73 @@ var Game = {
   scoreChange: function(delta){ score += delta; scoreText.text = "score: " + score; },
   makeBaddie: function (type)
   {
-    var self = this;
-    var image = type;
-    switch (type)
-    {
-      case "big":
-        image = "big" + (Math.floor((Math.random() * 5) + 1));
-        break;
-      case "small":
-        image = "small" + (Math.floor((Math.random() * 7) + 1));
-        break;
-    }
+    if (this.baddies.length <= 5) {
+      var self = this;
+      var image = type;
+      switch (type)
+      {
+        case "big":
+          image = "big" + (Math.floor((Math.random() * 5) + 1));
+          break;
+        case "small":
+          image = "small" + (Math.floor((Math.random() * 7) + 1));
+          break;
+      }
 
-    var baddie = game.add.sprite(0, -64, image);
-    var padding = 16;
-    baddie.anchor.set(0.5,0.5);
-    baddie.x = Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
-    game.physics.arcade.enable(baddie);
-    this.baddies.push(baddie);
-    baddie.shotUp = function () {
-      self.scoreChange(200);
-    };
-    switch(type)
-    {
-      case "big":
-      case "small":
-        baddie.body.velocity.y = 50 + Math.floor((Math.random() * 25));
-        baddie.hitGround = function(){
-            self.scoreChange(-100);
-        };
-        baddie.think = function(){};
-        break;
-      case "seaker":
-        var speed = 75 + Math.floor((Math.random() * 25));
-        baddie.body.velocity.y = speed;
-        baddie.hitGround = function(){};
-        baddie.think = function(){
-          var delta = player.x - baddie.x;
-          var qty = Math.abs(delta);
-          if (qty > 2) //solve unknown shudder issue
-          {
-            var direction = delta / qty; // -1 or +1
-            baddie.body.velocity.x = direction * speed;
-          } else {
-            baddie.body.velocity.x = 0;
-          }
-        };
-        break;
+      var baddie = game.add.sprite(0, -64, image);
+      var padding = 16;
+      baddie.anchor.set(0.5,0.5);
+      baddie.x = Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
+      game.physics.arcade.enable(baddie);
+      this.baddies.push(baddie);
+      baddie.shotUp = function () {
+        self.scoreChange(200);
+      };
+      switch(type)
+      {
+        case "big":
+        case "small":
+          baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.hitGround = function(){
+              self.scoreChange(-100);
+          };
+          baddie.think = function(){};
+          break;
+        case "seaker":
+          var speed = 75 + Math.floor((Math.random() * 80));
+          baddie.body.velocity.y = speed;
+          baddie.hitGround = function(){};
+          baddie.think = function(){
+            var delta = player.x - baddie.x;
+            var qty = Math.abs(delta);
+            if (qty > 2) //solve unknown shudder issue
+            {
+              var direction = delta / qty; // -1 or +1
+              baddie.body.velocity.x = direction * speed;
+            } else {
+              baddie.body.velocity.x = 0;
+            }
+          };
+          break;
+      }
+
     }
   },
   dropFromTheSky: function(){
     if (this.gameover) {
         return;
     }
-    switch (Math.floor((Math.random() * 7) ))
+    switch (Math.floor((Math.random() * 8) ))
     {
       case 0:
+      case 5:
         this.makeBaddie("big");
         break;
       case 1:
         this.makeBaddie("seaker");
         break;
-      case 2:
-      case 3:
       case 4:
+      case 7:
         this.makeBaddie("small");
         break;
     }
@@ -107,6 +110,7 @@ var Game = {
     game.load.image('ground', 'assets/platform.png');
     game.load.image('bullet', 'assets/images/bullet.png');
     this.fireKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    this.difficultyMultiplier = 1;
   },
   create: function () {
     score = 0;
@@ -167,7 +171,7 @@ var Game = {
     this.makeBaddie('big');
     this.makeBaddie('seaker');
 
-    game.time.events.loop(Phaser.Timer.SECOND * 4, this.dropFromTheSky, this);
+    game.time.events.loop(Phaser.Timer.SECOND/10, this.dropFromTheSky, this);
 
     var key = game.input.keyboard.addKey(Phaser.Keyboard.T); //see here: http://docs.phaser.io/Keyboard.js.html for the keycodes
     key.onDown.add(this.teleport, this);
@@ -207,10 +211,10 @@ var Game = {
     if (cursors.left.isDown && cursors.right.isDown) {
         // do nothing
     } else if (cursors.left.isDown) {
-        player.body.velocity.x = -150;
+        player.body.velocity.x = -350;
     }
     else if (cursors.right.isDown) {
-        player.body.velocity.x = 150;
+        player.body.velocity.x = 350;
     }
 
     for (i = 0; i < this.bullets.length; i++) {
@@ -218,7 +222,7 @@ var Game = {
     }
 
     game.physics.arcade.overlap(player, this.baddies, this.baddieHitPlayer, null, this);
-    
+
     if (this.gameover) {
       return;
     }
@@ -247,6 +251,9 @@ var Game = {
       } else {
         baddie.kill();
         player.lives[life].kill();
+        var a = this.baddies.indexOf(baddie);
+        this.baddies.splice(baddie, 1);
+
       }
   },
   gameOverManGAMEOVER: function(responsible){
@@ -264,6 +271,9 @@ var Game = {
   baddieHitGround: function (ground, baddie){
       baddie.hitGround();
       baddie.kill();
+      var a = this.baddies.indexOf(baddie);
+      this.baddies.splice(baddie, 1);
+
   },
   firePhasoidCannons: function () {
     for (var i = 0; i < this.bullets.length; i++) {
@@ -282,6 +292,9 @@ var Game = {
   bulletHitBaddie: function (bullet, baddie) {
     baddie.shotUp();
     baddie.kill();
+    var a = this.baddies.indexOf(baddie);
+    this.baddies.splice(baddie, 1);
+
     bullet.exists = false;
   },
   teleport: function(){
