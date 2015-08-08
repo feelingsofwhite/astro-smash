@@ -20,6 +20,7 @@
     "http-server": "^0.8.0",
     "jshint-stylish": "^2.0.1",
     "open": "0.0.5",
+    "prompt": "^0.2.14",
     "vinyl-ftp": "^0.4.4"
   }
 }
