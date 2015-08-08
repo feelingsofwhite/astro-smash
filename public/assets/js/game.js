@@ -11,7 +11,7 @@ var scoreText;
 var debugText;
 var ground;
 
-var Game = 
+var Game = {
   scoreChange: function(delta){ score += delta; scoreText.text = "score: " + score; },
   makeBaddie: function (type)
   {
