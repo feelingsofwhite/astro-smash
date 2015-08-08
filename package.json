@@ -2,6 +2,7 @@
   "name": "astrosmash",
   "version": "1.0.0",
   "description": "a reimplementation of intellivision's astro smash in phaser.io",
+  "repository": "git://github.com/feelingsofwhite/astrosmash",
   "main": "na",
   "scripts": {
     "test": "gulp test"
