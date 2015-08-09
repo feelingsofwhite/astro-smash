@@ -54,7 +54,7 @@ var Game = {
           baddie.think = function(){
             var delta = player.x - baddie.x;
             var qty = Math.abs(delta);
-            if (qty > 2) //solve unknown shudder issue
+            if (qty > 3) //solve unknown shudder issue
             {
               var direction = delta / qty; // -1 or +1
               baddie.body.velocity.x = direction * speed;
