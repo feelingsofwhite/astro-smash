@@ -229,15 +229,14 @@ var Game = {
 
     game.physics.arcade.overlap(ground, this.baddies, this.baddieHitGround, null, this);
 
-
-
     for (i=this.baddies.length-1;i>=0;i--)
     {
       var baddie = this.baddies[i];
-      baddie.think();
       if (baddie.alive === false) {
         var a = this.baddies.indexOf(baddie);
         this.baddies.splice(a, 1);
+      } else {
+        baddie.think();
       }
     }
     debugText.text =
