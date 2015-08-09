@@ -24,7 +24,7 @@ var Game = {
           image = "big" + (Math.floor((Math.random() * 5) + 1));
           break;
         case "small":
-          image = "small" + (Math.floor((Math.random() * 7) + 1));
+          image = "small" + (Math.floor((Math.random() * 9) + 1));
           break;
       }
 
@@ -50,6 +50,8 @@ var Game = {
         case "seaker":
           var speed = 75 + Math.floor((Math.random() * 80));
           baddie.body.velocity.y = speed;
+          baddie.animations.add('pulse', [0,0,0,1,2,2,2,1], 30, true);
+          baddie.animations.play('pulse');
           baddie.hitGround = function(){};
           baddie.think = function(){
             var delta = player.x - baddie.x;
@@ -103,8 +105,10 @@ var Game = {
     game.load.image('small5', './assets/images/small5.png');
     game.load.image('small6', './assets/images/small6.png');
     game.load.image('small7', './assets/images/small7.png');
+    game.load.image('small8', './assets/images/small8.png');
+    game.load.image('small9', './assets/images/small9.png');
 
-    game.load.image('seaker', './assets/images/seaker.png');
+    game.load.spritesheet('seaker', './assets/images/seaker-20x20x3.png', 20, 20);
 
     game.load.image('hero', 'assets/images/hero.png');
     game.load.image('ground', 'assets/platform.png');
