@@ -16,6 +16,7 @@ var watch = require('gulp-watch');
 var gutil = require('gulp-util');
 var ftp = require('vinyl-ftp');
 
+
 gulp.task('lib', function(){
     return gulp
         .src('./bower_components/phaser/build/*.js')
@@ -78,19 +79,62 @@ gulp.task('watch', function() {
     //gulp.watch('**/*.less', ['less']).on('change', logevent);
 });
 
+gulp.task('prompt', function(){
+    var promptSchema = {
+      properties: {
+        name: {
+          pattern: /^[a-zA-Z\s\-]+$/,
+          message: 'Name must be only letters, spaces, or dashes',
+          required: true
+        },
+        password: {
+          hidden: true
+        }
+      }
+    };
+     
+    // 
+    // Start the prompt 
+    // 
+    prompt.start();
+     
+    // 
+    // Get two properties from the user: email, password 
+    // 
+    prompt.get(promptSchema, function (err, result) {
+      // 
+      // Log the results. 
+      // 
+      console.log('Command-line input received:');
+      console.log('  name: ' + result.name);
+      console.log('  password: ' + result.password);
+    });
+    return
+});
 
 //bad thing note: this updates newer, but leaves old files lying around :(, thus
 //todo: use conn.rmdir to blow away target dir entirely allowing for a clean upload
 // or fancier, investigate conn.filter to orphaned files and delete them, for a full sync routine, but that sounds like a bit of work
 
 gulp.task( 'deploy', function() {
- 
-    var conn = ftp.create( {
-        host:     'feelingsofwhite.com',
-        user:     'jameslikesbeer',
-        password: 'jameslikesbeer',
-        log:      gutil.log
-    } );
+    var argv = require('yargs').argv;
+    var deployArgs = {
+        host: argv.host,
+        user: argv.user,
+        password: argv.password,
+        log:      gutil.log,
+
+        path: argv.path
+    }
+    
+    //chalk.red doesn't seem to work for me :(
+
+    if (!(deployArgs.host))     { console.log("ERR: missing --host xxx"    ); process.exit(1);}
+    if (!(deployArgs.path))     { console.log("ERR: missing --path xxx"    ); process.exit(1);}
+    if (!(deployArgs.user))     { console.log("ERR: missing --user xxx"    ); process.exit(1);}
+    if (!(deployArgs.password)) { console.log("ERR: missing --password xxx"); process.exit(1);}
+
+    var conn = ftp.create( deployArgs );
  
     var globs = [
         'public/**', //todo: build to a dest/ folder, using cdnify, so can upload without large phaser.io upload
@@ -100,8 +144,8 @@ gulp.task( 'deploy', function() {
     // turn off buffering in gulp.src for best performance 
  
     return gulp.src( globs, { base: './public/', buffer: false } ) 
-        .pipe( conn.newerOrDifferentSize( '/games/astrosmash' ) ) // only upload newer files or files of differente size
-        .pipe( conn.dest( '/games/astrosmash' ) );
+        .pipe( conn.newerOrDifferentSize( deployArgs.path ) ) // only upload newer files or files of differente size
+        .pipe( conn.dest( deployArgs.path ) );
  
 } );
 

@@ -16,12 +16,18 @@
     "gulp-jshint": "^1.11.2",
     "gulp-open": "^0.3.2",
     "gulp-plumber": "^1.0.1",
+    "gulp-shell": "^0.4.2",
     "gulp-util": "^3.0.6",
     "gulp-watch": "^4.3.1",
     "http-server": "^0.8.0",
     "jshint-stylish": "^2.0.1",
     "open": "0.0.5",
     "prompt": "^0.2.14",
-    "vinyl-ftp": "^0.4.4"
+    "vinyl-ftp": "^0.4.4",
+    "yargs": "^3.18.0"
+  },
+  "dependencies": {
+    "chalk": "^1.1.0",
+    "yargs": "^3.18.0"
   }
 }
