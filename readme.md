@@ -16,18 +16,8 @@ this builds & jshints & starts a local server on port 2003 & launches browser at
 * [Reference Video of Astro Smash](https://www.youtube.com/watch?v=cokygJeWomQ) ~ could also be pilliaged for reference graphics and audio
 * [Builds](https://travis-ci.org/feelingsofwhite/astrosmash/branches) thanks to Travis CI
 * [Shoot The Pointer](http://phaser.io/examples/v2/arcade-physics/shoot-the-pointer) example/tutorial
+* [Many many phaser examples](https://github.com/photonstorm/phaser-examples)
 
 ##### Todo
-* make bullets bigger
-* bombs (of different sizes I think?)
-* big rocks sometimes split into 2 @ 45 degree
-* graphics should have transparent bits
-* some things rotate
-* Fix laser size / drop speed / player speed
-* explosions
-* sounds
-* cdnify phaser for release build (because I want to try that)
-* instructions, launch screen that doesn't say snake
-* harder as time goes on, easier after a death (group variables into config)
-* earn extra lives very 1000 
-* background (and color changes)
+The todos have been moved out of the readme and on to a trello board:
+* [Trello board - formalized todo list](https://trello.com/b/yiMyUpNZ/astrosmash-todos)
