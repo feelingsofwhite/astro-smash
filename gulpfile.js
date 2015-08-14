@@ -3,6 +3,7 @@ var gulp = require('gulp');
 //var del = require('del');
 var connect = require('gulp-connect');
 var open = require('open');
+var chalk = require('chalk');
 //var less = require('gulp-less');
 //var path = require('path');
 //var sourcemaps = require('gulp-sourcemaps');
@@ -79,38 +80,7 @@ gulp.task('watch', function() {
     //gulp.watch('**/*.less', ['less']).on('change', logevent);
 });
 
-gulp.task('prompt', function(){
-    var promptSchema = {
-      properties: {
-        name: {
-          pattern: /^[a-zA-Z\s\-]+$/,
-          message: 'Name must be only letters, spaces, or dashes',
-          required: true
-        },
-        password: {
-          hidden: true
-        }
-      }
-    };
-     
-    // 
-    // Start the prompt 
-    // 
-    prompt.start();
-     
-    // 
-    // Get two properties from the user: email, password 
-    // 
-    prompt.get(promptSchema, function (err, result) {
-      // 
-      // Log the results. 
-      // 
-      console.log('Command-line input received:');
-      console.log('  name: ' + result.name);
-      console.log('  password: ' + result.password);
-    });
-    return
-});
+
 
 //bad thing note: this updates newer, but leaves old files lying around :(, thus
 //todo: use conn.rmdir to blow away target dir entirely allowing for a clean upload
@@ -129,10 +99,10 @@ gulp.task( 'deploy', function() {
     
     //chalk.red doesn't seem to work for me :(
 
-    if (!(deployArgs.host))     { console.log("ERR: missing --host xxx"    ); process.exit(1);}
-    if (!(deployArgs.path))     { console.log("ERR: missing --path xxx"    ); process.exit(1);}
-    if (!(deployArgs.user))     { console.log("ERR: missing --user xxx"    ); process.exit(1);}
-    if (!(deployArgs.password)) { console.log("ERR: missing --password xxx"); process.exit(1);}
+    if (!(deployArgs.host))     { console.log(chalk.red("ERR") + ": missing --host xxx"    ); process.exit(1);}
+    if (!(deployArgs.path))     { console.log(chalk.red("ERR") + ": missing --path xxx"    ); process.exit(1);}
+    if (!(deployArgs.user))     { console.log(chalk.red("ERR") + ": missing --user xxx"    ); process.exit(1);}
+    if (!(deployArgs.password)) { console.log(chalk.red("ERR") + ": missing --password xxx"); process.exit(1);}
 
     var conn = ftp.create( deployArgs );
  
