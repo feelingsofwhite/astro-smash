@@ -1,0 +1,20 @@
+{
+  "initialHeroManCount": 4,
+  "heroSpeed": 350,
+  "bulletSpeed": -500,
+  "bulletCount": 2,
+
+  "baddieCount": 5,
+  "baddieBaseSpeed": 75,
+  "baddieSpeedModifier": 85,
+  "bigBaddieBaseScore": 10,
+  "smallBaddieBaseScore": 20,
+  "bigBombBaseScore": 40,
+  "seekerBaseScore": 50,
+  "smallBombBaseScore": 80,
+  "heroDeathBaseScore": -100,
+
+  "levelThresholds": [1000, 5000, 20000, 50000, 100000, 200000, 1000000],
+  "freeManThreshold": 1000
+
+}

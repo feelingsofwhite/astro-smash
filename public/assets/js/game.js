@@ -4,15 +4,38 @@ var snake, apple, squareSize, score, speed,
   textStyle_Key, textStyle_Value;
 
 var score;
+var gameHighScore;
+var freeManLevel;
 var platforms;
 var player;
 var cursors;
 var scoreText;
 var debugText;
 var ground;
-
+var config;
 var Game = {
-  scoreChange: function(delta){ score += delta; scoreText.text = "score: " + score; },
+  scoreChange: function(delta){
+    score += delta;
+    scoreText.text = "score: " + score;
+    // update game high score to determine free mans etc
+    if (score > gameHighScore) {
+      gameHighScore = score;
+    }
+    this.reapRewards();
+  },
+  reapRewards: function () {
+    console.log("game high score: " + gameHighScore);
+    if (gameHighScore - freeManLevel >= config.freeManThreshold) {
+      // add free man
+      console.log("man up!");
+      player.lives.push(
+        game.add.sprite(game.world.width - (i*(player.width+16)), game.world.height - player.height - 16, 'hero')
+      );
+      freeManLevel += config.freeManThreshold;
+
+      // todo: check level change
+    }
+  },
   makeBaddie: function (type)
   {
     if (this.baddies.length <= 5) {
@@ -34,25 +57,24 @@ var Game = {
       baddie.x = Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
       game.physics.arcade.enable(baddie);
       this.baddies.push(baddie);
-      baddie.shotUp = function () {
-        self.scoreChange(200);
-      };
       switch(type)
       {
         case "big":
+          baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.baseScore = config.bigBaddieBaseScore;
+          baddie.think = function(){};
+
         case "small":
           baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
-          baddie.hitGround = function(){
-              self.scoreChange(-100);
-          };
+          baddie.baseScore = config.smallBaddieBaseScore;
           baddie.think = function(){};
           break;
         case "seaker":
           var speed = 75 + Math.floor((Math.random() * 80));
+          baddie.baseScore = config.seekerBaseScore;
           baddie.body.velocity.y = speed;
           baddie.animations.add('pulse', [0,0,0,1,2,2,2,1], 30, true);
           baddie.animations.play('pulse');
-          baddie.hitGround = function(){};
           baddie.think = function(){
             var delta = player.x - baddie.x;
             var qty = Math.abs(delta);
@@ -66,7 +88,12 @@ var Game = {
           };
           break;
       }
-
+      baddie.hitGround = function () {
+        self.scoreChange(-1 * (baddie.baseScore * self.levelMultiplier)/2);
+      };
+      baddie.shotUp = function () {
+        self.scoreChange(baddie.baseScore * self.levelMultiplier);
+      }
     }
   },
   dropFromTheSky: function(){
@@ -91,7 +118,8 @@ var Game = {
 
   preload: function () {
     // here we load all theneeded resources for the level
-    // in our case that's just two squares. Ane for a snake body and one for the apple
+    game.load.json('config', './assets/js/config/config.json');
+
     game.load.image('big1', './assets/images/big1.png');
     game.load.image('big2', './assets/images/big2.png');
     game.load.image('big3', './assets/images/big3.png');
@@ -117,8 +145,14 @@ var Game = {
     this.difficultyMultiplier = 1;
   },
   create: function () {
+    config = game.cache.getJSON('config');
+    console.log("Config: ", config);
     score = 0;
+    gameHighScore = 0;
+    var freeManLevel = 0;
     this.baddies = [];
+    this.levelMultiplier = 1;
+
 
     game.stage.backgroundColor = '#061f27';
 
@@ -135,16 +169,11 @@ var Game = {
     ground.body.immovable=true;
 
     this.bullets = [];
-    this.bullets[0] = game.add.sprite(0, 0, 'bullet');
-    this.bullets[1] = game.add.sprite(0, 0, 'bullet');
-    this.bullets[2] = game.add.sprite(0, 0, 'bullet');
-    game.physics.arcade.enable(this.bullets[0]);
-    game.physics.arcade.enable(this.bullets[1]);
-    game.physics.arcade.enable(this.bullets[2]);
-
-    this.bullets[0].exists = false;
-    this.bullets[1].exists = false;
-    this.bullets[2].exists = false;
+    for (var i = 0; i < config.bulletCount; i++) {
+      this.bullets[i] = game.add.sprite(0, 0, 'bullet');
+      game.physics.arcade.enable(this.bullets[i]);
+      this.bullets[i].exists = false;
+    }
 
     player = game.add.sprite(32, 0, 'hero');
     player.anchor.set(0.5,0.5);
@@ -157,7 +186,7 @@ var Game = {
     //player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
     player.lives = [];
-    for(var i=3;i>0;i--)
+    for(var i=config.initialHeroManCount;i>0;i--)
     {
       player.lives.push(
           game.add.sprite(game.world.width - (i*(player.width+16)), game.world.height - player.height - 16, 'hero')
@@ -215,10 +244,10 @@ var Game = {
     if (cursors.left.isDown && cursors.right.isDown) {
         // do nothing
     } else if (cursors.left.isDown) {
-        player.body.velocity.x = -350;
+        player.body.velocity.x = -1 * config.heroSpeed;
     }
     else if (cursors.right.isDown) {
-        player.body.velocity.x = 350;
+        player.body.velocity.x = config.heroSpeed;
     }
 
     for (i = 0; i < this.bullets.length; i++) {
@@ -289,7 +318,6 @@ var Game = {
         break;
       }
     }
-    console.log("gun's empty, yo!");
   },
   bulletHitBaddie: function (bullet, baddie) {
     baddie.shotUp();
