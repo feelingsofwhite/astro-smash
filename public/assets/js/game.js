@@ -13,6 +13,7 @@ var scoreText;
 var debugText;
 var ground;
 var config;
+var nextFreeManAt;
 var Game = {
   scoreChange: function(delta){
     score += delta;
@@ -24,14 +25,14 @@ var Game = {
     this.reapRewards();
   },
   reapRewards: function () {
-    console.log("game high score: " + gameHighScore);
-    if (gameHighScore - freeManLevel >= config.freeManThreshold) {
+    if (gameHighScore > nextFreeManAt) {
       // add free man
-      console.log("man up!");
+      console.log("player lives before: " + player.lives.length);
       player.lives.push(
-        game.add.sprite(game.world.width - (i*(player.width+16)), game.world.height - player.height - 16, 'hero')
+        game.add.sprite(game.world.width - ((player.lives.length)*(player.width+16)), game.world.height - player.height - 16, 'hero')
       );
-      freeManLevel += config.freeManThreshold;
+    console.log("player lives after: " + player.lives.length);
+      nextFreeManAt += config.freeManThreshold;
 
       // todo: check level change
     }
@@ -63,7 +64,7 @@ var Game = {
           baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
           baddie.baseScore = config.bigBaddieBaseScore;
           baddie.think = function(){};
-
+          break;
         case "small":
           baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
           baddie.baseScore = config.smallBaddieBaseScore;
@@ -93,7 +94,7 @@ var Game = {
       };
       baddie.shotUp = function () {
         self.scoreChange(baddie.baseScore * self.levelMultiplier);
-      }
+      };
     }
   },
   dropFromTheSky: function(){
@@ -146,13 +147,13 @@ var Game = {
   },
   create: function () {
     config = game.cache.getJSON('config');
-    console.log("Config: ", config);
     score = 0;
     gameHighScore = 0;
     var freeManLevel = 0;
+    nextFreeManAt = config.freeManThreshold;
     this.baddies = [];
     this.levelMultiplier = 1;
-
+    var i;
 
     game.stage.backgroundColor = '#061f27';
 
@@ -169,7 +170,7 @@ var Game = {
     ground.body.immovable=true;
 
     this.bullets = [];
-    for (var i = 0; i < config.bulletCount; i++) {
+    for (i = 0; i < config.bulletCount; i++) {
       this.bullets[i] = game.add.sprite(0, 0, 'bullet');
       game.physics.arcade.enable(this.bullets[i]);
       this.bullets[i].exists = false;
@@ -186,7 +187,7 @@ var Game = {
     //player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
     player.lives = [];
-    for(var i=config.initialHeroManCount;i>0;i--)
+    for(i=config.initialHeroManCount;i>0;i--)
     {
       player.lives.push(
           game.add.sprite(game.world.width - (i*(player.width+16)), game.world.height - player.height - 16, 'hero')
@@ -227,13 +228,11 @@ var Game = {
     }
 
     if (this.fireKey.isDown && !this.fireDown) {
-      console.log('pewpew');
       this.firePhasoidCannons();
       this.fireDown = true;
     }
 
     if (this.fireKey.isUp && this.fireDown) {
-      console.log('stopfiring!');
       this.fireDown = false;
     }
 
