@@ -7,6 +7,7 @@
   "baddieCount": 5,
   "baddieBaseSpeed": 75,
   "baddieSpeedModifier": 85,
+  "baddieDriftMax": 20,
   "bigBaddieBaseScore": 10,
   "smallBaddieBaseScore": 20,
   "bigBombBaseScore": 40,
