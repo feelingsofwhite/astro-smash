@@ -49,7 +49,10 @@ var Game = {
           image = "big" + (Math.floor((Math.random() * 5) + 1));
           break;
         case "small":
-          image = "small" + (args.idx || rollForSmall());
+          image = "small" + rollForSmall();
+          break;
+        case "debris":
+          image = "small" + args.idx;
           break;
       }
 
@@ -86,14 +89,21 @@ var Game = {
               //must use livingCount, as the array is likely not trimmed yet, as this will occur during shot
               //maybe use a sprite group? or something else where we we're not calculating this ourselves? *shrug*
               var idx = rollForSmall();
-              self.makeBaddie("small", {big: baddie, idx: idx, x:baddie.x,y:baddie.y, velocityy: baddie.body.velocity.y, velocityx: baddie.body.velocity.x - (baddie.body.velocity.y * 0.8) });
-              self.makeBaddie("small", {big: baddie, idx: idx, x:baddie.x,y:baddie.y, velocityy: baddie.body.velocity.y, velocityx: baddie.body.velocity.x + (baddie.body.velocity.y * 0.8) });
+              self.makeBaddie("debris", {big: baddie, idx: idx, direction: -1 });
+              self.makeBaddie("debris", {big: baddie, idx: idx, direction: +1 });
             }
           };
-          break;
+          break;          
         case "small":
-          baddie.body.velocity.y = args.velocityy || 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
-          baddie.body.velocity.x = args.velocityx || Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
+          baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.body.velocity.x = Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
+          baddie.baseScore = config.smallBaddieBaseScore;
+          break;
+        case "debris":
+          baddie.x = args.big.x + args.direction * 2;
+          baddie.y = args.big.y + args.direction * 2;
+          baddie.body.velocity.y = args.big.body.velocity.y;
+          baddie.body.velocity.x = args.big.body.velocity.x + (args.big.body.velocity.y * 0.8 * args.direction);
           baddie.baseScore = config.smallBaddieBaseScore;
           break;
         case "seaker":
