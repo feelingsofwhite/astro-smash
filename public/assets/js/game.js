@@ -283,15 +283,19 @@ var Game = {
     for (i=this.baddies.length-1;i>=0;i--)
     {
       var baddie = this.baddies[i];
+      if ((baddie.left > game.world.width) || (baddie.right < 0)){
+        baddie.kill();
+      }
       if (baddie.alive === false) {
-        var a = this.baddies.indexOf(baddie);
-        this.baddies.splice(a, 1);
+        this.baddies.splice(i, 1);
       } else {
         baddie.think();
       }
     }
     debugText.text =
-        "player.body.x=" + player.body.x;
+          "player.body.x=" + player.body.x
+        + "\rbaddies.length=" + this.baddies.length
+        + "\rbaddies.livingCount=" + this.baddies.livingCount();
   },
   baddieHitPlayer: function (player, baddie){
       if (this.gameover) {
