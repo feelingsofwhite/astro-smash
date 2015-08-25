@@ -332,11 +332,13 @@ var Game = {
         bullet.x = player.x;
         bullet.body.velocity.y = -500;
         bullet.exists = true;
+        bullet.alive = true;
         break;
       }
     }
   },
   bulletHitBaddie: function (bullet, baddie) {
+    bullet.kill();
     bullet.exists = false;
     baddie.kill();
     baddie.shotUp();
