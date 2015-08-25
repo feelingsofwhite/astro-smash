@@ -53,6 +53,20 @@ var Game = {
           break;
       }
 
+      //blindmode!
+      switch (type)
+      {
+        case "big":
+          image = game.add.bitmapData(64,32);
+          break;
+        case "small":
+          image = game.add.bitmapData(32,32);
+          // image.context.fillStyle = '#FF6900';
+          // image.circle(16,16,15)
+          //replace color! http://www.phaser.io/examples/v2/bitmapdata/replace-color
+          break;
+      }
+
       var baddie = game.add.sprite(0, -64, image);
       var padding = 16;
       baddie.anchor.set(0.5,0.5);
