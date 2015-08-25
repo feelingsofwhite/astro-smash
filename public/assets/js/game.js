@@ -191,7 +191,7 @@ var Game = {
       this.bullets[i] = game.add.sprite(0, 0, 'bullet');
       this.bullets[i].anchor.set(0.5,0);
       game.physics.arcade.enable(this.bullets[i]);
-      this.bullets[i].kill()
+      this.bullets[i].kill();
     }
 
     player = game.add.sprite(32, 0, 'hero');
@@ -293,9 +293,9 @@ var Game = {
       }
     }
     debugText.text =
-          "player.body.x=" + player.body.x
-        + "\rbaddies.length=" + this.baddies.length
-        + "\rbaddies.livingCount=" + this.baddies.livingCount();
+          "player.body.x=" + player.body.x +
+          "\rbaddies.length=" + this.baddies.length +
+          "\rbaddies.livingCount=" + this.baddies.livingCount();
   },
   baddieHitPlayer: function (player, baddie){
       if (this.gameover) {
