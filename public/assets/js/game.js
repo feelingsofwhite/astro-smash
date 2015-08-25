@@ -191,7 +191,7 @@ var Game = {
       this.bullets[i] = game.add.sprite(0, 0, 'bullet');
       this.bullets[i].anchor.set(0.5,0);
       game.physics.arcade.enable(this.bullets[i]);
-      this.bullets[i].exists = false;
+      this.bullets[i].kill()
     }
 
     player = game.add.sprite(32, 0, 'hero');
@@ -240,8 +240,9 @@ var Game = {
 
     for (i = 0; i < this.bullets.length; i++) {
       var bullet = this.bullets[i];
-      if (bullet.exists && bullet.y <= 0) {
-        bullet.exists = false;
+      if (bullet.exists && (bullet.height + bullet.body.y)  < -2) {
+        console.log('bullet ' + i + ' flew into the sky height=' + bullet.height + ' y=' + bullet.body.y);
+        bullet.kill();
       }
     }
 
@@ -325,21 +326,19 @@ var Game = {
       baddie.kill();
   },
   firePhasoidCannons: function () {
+    //debugger;
     for (var i = 0; i < this.bullets.length; i++) {
       var bullet = this.bullets[i];
       if (!bullet.exists) {
-        bullet.y = player.top;
-        bullet.x = player.x;
+        bullet.reset(player.x, player.top);
         bullet.body.velocity.y = -500;
-        bullet.exists = true;
-        bullet.alive = true;
+        console.log('bullet ' + i + ' fired height=' + bullet.height + ' y=' + bullet.body.y);
         break;
       }
     }
   },
   bulletHitBaddie: function (bullet, baddie) {
     bullet.kill();
-    bullet.exists = false;
     baddie.kill();
     baddie.shotUp();
   },
