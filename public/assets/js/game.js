@@ -37,38 +37,50 @@ var Game = {
       // todo: check level change
     }
   },
-  makeBaddie: function (type)
+  makeBaddie: function (type, args)
   {
-    if (this.baddies.length <= 5) {
+      args = args || {};
       var self = this;
       var image = type;
+      var rollForSmall = function(){ return (Math.floor((Math.random() * 9) + 1)); };
       switch (type)
       {
         case "big":
           image = "big" + (Math.floor((Math.random() * 5) + 1));
           break;
         case "small":
-          image = "small" + (Math.floor((Math.random() * 9) + 1));
+          image = "small" + (args.idx || rollForSmall());
           break;
       }
 
       var baddie = game.add.sprite(0, -64, image);
       var padding = 16;
       baddie.anchor.set(0.5,0.5);
-      baddie.x = Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
+      baddie.x = args.x || Math.floor((Math.random() * (game.world.width - baddie.offsetX - (padding * 2)))) + padding;
+      baddie.y = args.y || -64;
       game.physics.arcade.enable(baddie);
       this.baddies.push(baddie);
       switch(type)
       {
         case "big":
           baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.body.velocity.x = Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
           baddie.baseScore = config.bigBaddieBaseScore;
-          baddie.think = function(){};
+          baddie.shotUp = function() {
+            if (self.baddies.livingCount() <=  3) { 
+              //if (true) {
+              //must use livingCount, as the array is likely not trimmed yet, as this will occur during shot
+              //maybe use a sprite group? or something else where we we're not calculating this ourselves? *shrug*
+              var idx = rollForSmall();
+              self.makeBaddie("small", {big: baddie, idx: idx, x:baddie.x,y:baddie.y, velocityy: baddie.body.velocity.y, velocityx: baddie.body.velocity.x - (baddie.body.velocity.y * 0.8) });
+              self.makeBaddie("small", {big: baddie, idx: idx, x:baddie.x,y:baddie.y, velocityy: baddie.body.velocity.y, velocityx: baddie.body.velocity.x + (baddie.body.velocity.y * 0.8) });
+            }
+          };
           break;
         case "small":
-          baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.body.velocity.y = args.velocityy || 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.body.velocity.x = args.velocityx || Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
           baddie.baseScore = config.smallBaddieBaseScore;
-          baddie.think = function(){};
           break;
         case "seaker":
           var speed = 75 + Math.floor((Math.random() * 80));
@@ -89,31 +101,28 @@ var Game = {
           };
           break;
       }
-      baddie.hitGround = function () {
-        self.scoreChange(-1 * (baddie.baseScore * self.levelMultiplier)/2);
-      };
-      baddie.shotUp = function () {
-        self.scoreChange(baddie.baseScore * self.levelMultiplier);
-      };
-    }
+      if (typeof baddie.think === 'undefined')
+        baddie.think = function(){};
+      if (typeof baddie.hitGround === 'undefined')
+        baddie.hitGround = function () {
+          self.scoreChange(-1 * (baddie.baseScore * self.levelMultiplier)/2);
+        };
+      if (typeof baddie.shotUp === 'undefined')
+        baddie.shotUp = function () {
+          self.scoreChange(baddie.baseScore * self.levelMultiplier);
+        };
   },
   dropFromTheSky: function(){
-    if (this.gameover) {
+    if (this.gameover || this.baddies.length > 5)  {
         return;
     }
-    switch (Math.floor((Math.random() * 8) ))
-    {
-      case 0:
-      case 5:
-        this.makeBaddie("big");
-        break;
-      case 1:
+    var i = (Math.floor((Math.random() * 64) ));
+    if (i === 0) {
         this.makeBaddie("seaker");
-        break;
-      case 4:
-      case 7:
+    } else if (i <= 27) {
+        this.makeBaddie("big");
+    } else if (i <= 32) {
         this.makeBaddie("small");
-        break;
     }
   },
 
@@ -146,12 +155,20 @@ var Game = {
     this.difficultyMultiplier = 1;
   },
   create: function () {
+    var self = this;
     config = game.cache.getJSON('config');
     score = 0;
     gameHighScore = 0;
     var freeManLevel = 0;
     nextFreeManAt = config.freeManThreshold;
     this.baddies = [];
+    this.baddies.livingCount = function(){
+      var result = 0;
+      for (var li =0; li < self.baddies.length; li++)
+        if (self.baddies[i].alive)
+          result++;
+      return result;
+    };
     this.levelMultiplier = 1;
     var i;
 
@@ -172,8 +189,9 @@ var Game = {
     this.bullets = [];
     for (i = 0; i < config.bulletCount; i++) {
       this.bullets[i] = game.add.sprite(0, 0, 'bullet');
+      this.bullets[i].anchor.set(0.5,0);
       game.physics.arcade.enable(this.bullets[i]);
-      this.bullets[i].exists = false;
+      this.bullets[i].kill()
     }
 
     player = game.add.sprite(32, 0, 'hero');
@@ -205,7 +223,7 @@ var Game = {
     this.makeBaddie('big');
     this.makeBaddie('seaker');
 
-    game.time.events.loop(Phaser.Timer.SECOND/10, this.dropFromTheSky, this);
+    game.time.events.loop(Phaser.Timer.SECOND/2, this.dropFromTheSky, this);
 
     var key = game.input.keyboard.addKey(Phaser.Keyboard.T); //see here: http://docs.phaser.io/Keyboard.js.html for the keycodes
     key.onDown.add(this.teleport, this);
@@ -222,8 +240,9 @@ var Game = {
 
     for (i = 0; i < this.bullets.length; i++) {
       var bullet = this.bullets[i];
-      if (bullet.exists && bullet.y <= 0) {
-        bullet.exists = false;
+      if (bullet.exists && (bullet.height + bullet.body.y)  < -2) {
+        console.log('bullet ' + i + ' flew into the sky height=' + bullet.height + ' y=' + bullet.body.y);
+        bullet.kill();
       }
     }
 
@@ -264,15 +283,19 @@ var Game = {
     for (i=this.baddies.length-1;i>=0;i--)
     {
       var baddie = this.baddies[i];
+      if ((baddie.left > game.world.width) || (baddie.right < 0)){
+        baddie.kill();
+      }
       if (baddie.alive === false) {
-        var a = this.baddies.indexOf(baddie);
-        this.baddies.splice(a, 1);
+        this.baddies.splice(i, 1);
       } else {
         baddie.think();
       }
     }
     debugText.text =
-        "player.body.x=" + player.body.x;
+          "player.body.x=" + player.body.x
+        + "\rbaddies.length=" + this.baddies.length
+        + "\rbaddies.livingCount=" + this.baddies.livingCount();
   },
   baddieHitPlayer: function (player, baddie){
       if (this.gameover) {
@@ -307,21 +330,21 @@ var Game = {
       baddie.kill();
   },
   firePhasoidCannons: function () {
+    //debugger;
     for (var i = 0; i < this.bullets.length; i++) {
       var bullet = this.bullets[i];
       if (!bullet.exists) {
-        bullet.y = player.top;
-        bullet.x = player.left + (player.width/2);
+        bullet.reset(player.x, player.top);
         bullet.body.velocity.y = -500;
-        bullet.exists = true;
+        console.log('bullet ' + i + ' fired height=' + bullet.height + ' y=' + bullet.body.y);
         break;
       }
     }
   },
   bulletHitBaddie: function (bullet, baddie) {
-    baddie.shotUp();
+    bullet.kill();
     baddie.kill();
-    bullet.exists = false;
+    baddie.shotUp();
   },
   teleport: function(){
     var padding = 2;
