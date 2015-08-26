@@ -56,19 +56,6 @@ var Game = {
           break;
       }
 
-      //blindmode!
-      switch (type)
-      {
-        case "big":
-          image = game.add.bitmapData(64,32);
-          break;
-        case "small":
-          image = game.add.bitmapData(32,32);
-          // image.context.fillStyle = '#FF6900';
-          // image.circle(16,16,15)
-          //replace color! http://www.phaser.io/examples/v2/bitmapdata/replace-color
-          break;
-      }
 
       var baddie = game.add.sprite(0, -64, image);
       var padding = 16;
@@ -84,7 +71,7 @@ var Game = {
           baddie.body.velocity.x = Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
           baddie.baseScore = config.bigBaddieBaseScore;
           baddie.shotUp = function() {
-            if (self.baddies.livingCount() <=  3) { 
+            if (self.baddies.livingCount() <=  3) {
               //if (true) {
               //must use livingCount, as the array is likely not trimmed yet, as this will occur during shot
               //maybe use a sprite group? or something else where we we're not calculating this ourselves? *shrug*
@@ -93,7 +80,7 @@ var Game = {
               self.makeBaddie("debris", {big: baddie, idx: idx, direction: +1 });
             }
           };
-          break;          
+          break;
         case "small":
           baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
           baddie.body.velocity.x = Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
