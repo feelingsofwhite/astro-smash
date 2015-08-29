@@ -74,7 +74,7 @@ var Game = {
               self.makeBaddie("debris", {big: baddie, idx: idx, direction: -1 });
               self.makeBaddie("debris", {big: baddie, idx: idx, direction: +1 });
             } else {
-              self.explode(baddie.x, baddie.y)
+              self.explode(baddie.x, baddie.y);
             }
           };
           break;
