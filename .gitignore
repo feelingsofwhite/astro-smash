@@ -3,3 +3,5 @@ node_modules
 public/lib
 Thumbs.db
 reference
+.idea
+astro-smash.iml

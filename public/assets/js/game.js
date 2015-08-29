@@ -1,11 +1,6 @@
-var snake, apple, squareSize, score, speed,
-  updateDelay, direction, new_direction,
-  addNew, cursors, scoreTextValue, speedTextValue,
-  textStyle_Key, textStyle_Value;
+var score, speed, direction;
 
-var score;
 var gameHighScore;
-var freeManLevel;
 var platforms;
 var player;
 var cursors;
@@ -78,6 +73,8 @@ var Game = {
               var idx = rollForSmall();
               self.makeBaddie("debris", {big: baddie, idx: idx, direction: -1 });
               self.makeBaddie("debris", {big: baddie, idx: idx, direction: +1 });
+            } else {
+              self.explode(baddie.x, baddie.y)
             }
           };
           break;
@@ -121,6 +118,7 @@ var Game = {
       if (typeof baddie.shotUp === 'undefined')
         baddie.shotUp = function () {
           self.scoreChange(baddie.baseScore * self.levelMultiplier);
+          self.explode(baddie.x, baddie.y);
         };
   },
   dropFromTheSky: function(){
@@ -136,7 +134,13 @@ var Game = {
         this.makeBaddie("small");
     }
   },
-
+  explode: function (x, y) {
+    var explosion = game.add.sprite(x, y, 'explosion');
+      explosion.animations.add('boom', [0,1,2,3,4,5], 30, false, true);
+      explosion.play('boom', 30, false, true);
+    game.physics.arcade.enable(explosion);
+    this.explosions.push(explosion);
+  },
   preload: function () {
     // here we load all theneeded resources for the level
     game.load.json('config', './assets/js/config/config.json');
@@ -158,19 +162,20 @@ var Game = {
     game.load.image('small9', './assets/images/small9.png');
 
     game.load.spritesheet('seaker', './assets/images/seaker-20x20x3.png', 20, 20);
+    game.load.spritesheet('explosion', './assets/images/explosion-32x32x6.png', 32, 32);
 
     game.load.image('hero', 'assets/images/hero.png');
     game.load.image('ground', 'assets/platform.png');
     game.load.image('bullet', 'assets/images/bullet.png');
     this.fireKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.difficultyMultiplier = 1;
+    this.explosions = [];
   },
   create: function () {
     var self = this;
     config = game.cache.getJSON('config');
     score = 0;
     gameHighScore = 0;
-    var freeManLevel = 0;
     nextFreeManAt = config.freeManThreshold;
     this.baddies = [];
     this.baddies.livingCount = function(){
@@ -283,6 +288,10 @@ var Game = {
       game.physics.arcade.overlap(this.bullets[i], this.baddies, this.bulletHitBaddie, null, this);
     }
 
+    for (i = 0; i < this.explosions.length; i++) {
+      game.physics.arcade.overlap(this.explosions[i], this.baddies, this.explosionHitBaddie, null, this);
+    }
+
     game.physics.arcade.overlap(player, this.baddies, this.baddieHitPlayer, null, this);
 
     if (this.gameover) {
@@ -354,6 +363,10 @@ var Game = {
   },
   bulletHitBaddie: function (bullet, baddie) {
     bullet.kill();
+    baddie.kill();
+    baddie.shotUp();
+  },
+  explosionHitBaddie: function (explosion, baddie) {
     baddie.kill();
     baddie.shotUp();
   },
