@@ -108,6 +108,25 @@ var Game = {
             }
           };
           break;
+        case 'bigBomb':
+          baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.body.velocity.x = Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
+          baddie.baseScore = config.bigBombBaseScore;
+          baddie.animations.add('spinBig', [0,1,2,3], 10, true);
+          baddie.animations.play('spinBig');
+          baddie.hitGround = function () {
+            self.baddieHitPlayer(player, baddie);
+          };
+          break;
+        case 'smallBomb':
+          baddie.body.velocity.y = 75 + Math.floor((Math.random() * (80 * this.difficultyMultiplier)));
+          baddie.body.velocity.x = Math.ceil((Math.random() * (config.baddieDriftMax * 2))) - config.baddieDriftMax;
+          baddie.baseScore = config.smallBombBaseScore;
+          baddie.animations.add('spinSmall', [0,1,2,3], 10, true);
+          baddie.animations.play('spinSmall');
+          baddie.hitGround = function () {
+            self.baddieHitPlayer(player, baddie);
+          };
       }
       if (typeof baddie.think === 'undefined')
         baddie.think = function(){};
@@ -125,19 +144,24 @@ var Game = {
     if (this.gameover || this.baddies.length > 5)  {
         return;
     }
-    var i = (Math.floor((Math.random() * 64) ));
+    var i = (Math.floor((Math.random() * 88) ));
     if (i === 0) {
         this.makeBaddie("seaker");
     } else if (i <= 27) {
         this.makeBaddie("big");
     } else if (i <= 32) {
         this.makeBaddie("small");
+    } else if (i <= 40) {
+      this.makeBaddie('bigBomb');
+    } else if (i <= 44) {
+      this.makeBaddie('smallBomb');
     }
   },
   explode: function (x, y) {
     var explosion = game.add.sprite(x, y, 'explosion');
       explosion.animations.add('boom', [0,1,2,3,4,5], 30, false, true);
       explosion.play('boom', 30, false, true);
+    explosion.anchor.set(0.5, 0.5);
     game.physics.arcade.enable(explosion);
     this.explosions.push(explosion);
   },
@@ -163,6 +187,8 @@ var Game = {
 
     game.load.spritesheet('seaker', './assets/images/seaker-20x20x3.png', 20, 20);
     game.load.spritesheet('explosion', './assets/images/explosion-32x32x6.png', 32, 32);
+    game.load.spritesheet('bigBomb', './assets/images/bomb-64x64x4.png', 64, 64);
+    game.load.spritesheet('smallBomb', './assets/images/bomb-32x32x4.png', 32, 32);
 
     game.load.image('hero', 'assets/images/hero.png');
     game.load.image('ground', 'assets/platform.png');
@@ -249,6 +275,10 @@ var Game = {
   },
 
   update: function () {
+    if (this.dignity) {
+      console.log("can't talk. dying.");
+      return;
+    }
     if (this.gameover) {
         return;
     }
@@ -332,6 +362,13 @@ var Game = {
         baddie.kill();
         player.lives[life].kill();
       }
+    this.dieWithDignity();
+  },
+  dieWithDignity: function () {
+    // create 5 sprites to expand away from player x, y, straight up, straight right, straight left, diagonal up right, and diagonal up left
+    this.dignity = true;
+    console.log("really impressive death scene");
+    this.dignity = false;
   },
   gameOverManGAMEOVER: function(responsible){
     this.gameover = true;
