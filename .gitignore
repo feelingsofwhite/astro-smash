@@ -3,3 +3,4 @@ node_modules
 public/lib
 Thumbs.db
 reference
+deploy.ftp.json

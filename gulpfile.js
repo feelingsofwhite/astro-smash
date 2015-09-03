@@ -82,28 +82,31 @@ gulp.task('watch', function() {
 
 
 
+gulp.task('deployArgs', function(cb) {
+    var deploy = require("./deploy.js")
+    deploy.readFromConfigOrPrompt(function(err) {
+        if (err) {
+            process.exit(-1);
+        } else {
+            deploy.display();
+        }
+        cb()
+   });
+});
+
 //bad thing note: this updates newer, but leaves old files lying around :(, thus
 //todo: use conn.rmdir to blow away target dir entirely allowing for a clean upload
 // or fancier, investigate conn.filter to orphaned files and delete them, for a full sync routine, but that sounds like a bit of work
-
-gulp.task( 'deploy', function() {
-    var argv = require('yargs').argv;
+gulp.task( 'deploy', ['deployArgs'], function() {
+    var args = require("./deploy.js").deployArgs;
     var deployArgs = {
-        host: argv.host,
-        user: argv.user,
-        password: argv.password,
+        host:     args.host,
+        user:     args.user,
+        password: args.password,
         log:      gutil.log,
-
-        path: argv.path
+        path:     args.path
     }
     
-    //chalk.red doesn't seem to work for me :(
-
-    if (!(deployArgs.host))     { console.log(chalk.red("ERR") + ": missing --host xxx"    ); process.exit(1);}
-    if (!(deployArgs.path))     { console.log(chalk.red("ERR") + ": missing --path xxx"    ); process.exit(1);}
-    if (!(deployArgs.user))     { console.log(chalk.red("ERR") + ": missing --user xxx"    ); process.exit(1);}
-    if (!(deployArgs.password)) { console.log(chalk.red("ERR") + ": missing --password xxx"); process.exit(1);}
-
     var conn = ftp.create( deployArgs );
  
     var globs = [
