@@ -9,7 +9,7 @@ var chalk = require('chalk');
 //var sourcemaps = require('gulp-sourcemaps');
 //var jslint = require('gulp-jslint');
 var jshint = require('gulp-jshint');
-var jshintStylish = require('jshint-stylish')
+var jshintStylish = require('jshint-stylish');
 var plumber = require('gulp-plumber');
 var beep = require('beepbeep');
 var watch = require('gulp-watch');
@@ -21,15 +21,15 @@ var ftp = require('vinyl-ftp');
 gulp.task('lib', function(){
     return gulp
         .src('./bower_components/phaser/build/*.js')
-        .pipe(gulp.dest('public/lib'))
+        .pipe(gulp.dest('public/lib'));
 });
 
 gulp.task('test', function(){
     return gulp
-      .src(['public/**/*.js', '!public/lib/**'])
+      .src(['public/**/*.js', '!public/lib/**', 'gulpfile.js', 'deploy.js'])
       .pipe(jshint())
       .pipe(jshint.reporter(jshintStylish))
-      .pipe(jshint.reporter('fail')) // fail on errors or warnings
+      .pipe(jshint.reporter('fail')); // fail on errors or warnings
 });
 
 gulp.task('js', function(){
@@ -46,7 +46,7 @@ gulp.task('js', function(){
                    asi: false
                }))
        .pipe(jshint.reporter(jshintStylish))
-       .pipe(connect.reload())
+       .pipe(connect.reload());
 });
 
 // without gulp-watch (but gulp-watch is cool because it only passes in changed files)
@@ -56,7 +56,7 @@ gulp.task('js', function(){
 
 var port = 2003; 
 gulp.task('connect', function() {
-  console.log('server started')
+  console.log('server started');
   connect.server({
     root: 'public',
     livereload: true,
@@ -67,7 +67,7 @@ gulp.task('connect', function() {
 gulp.task('launch', function(){
   console.log('launching browser');
   open('http://localhost:' + port);
-}) 
+});
 
 gulp.task('watch', function() {
     console.log('watching...');
@@ -76,21 +76,21 @@ gulp.task('watch', function() {
     };
     gulp.watch('public/**/*.js', ['js']).on('change', logevent);
     //gulp.watch('public/**/*.html', ['reload']).on('change', logevent);
-    watch(['public/**/*.html', 'public/**/*.js']).pipe(connect.reload())
+    watch(['public/**/*.html', 'public/**/*.js']).pipe(connect.reload());
     //gulp.watch('**/*.less', ['less']).on('change', logevent);
 });
 
 
 
 gulp.task('deployArgs', function(cb) {
-    var deploy = require("./deploy.js")
+    var deploy = require("./deploy.js");
     deploy.readFromConfigOrPrompt(function(err) {
         if (err) {
             process.exit(-1);
         } else {
             deploy.display();
         }
-        cb()
+        cb();
    });
 });
 
@@ -105,7 +105,7 @@ gulp.task( 'deploy', ['deployArgs'], function() {
         password: args.password,
         log:      gutil.log,
         path:     args.path
-    }
+    };
     
     var conn = ftp.create( deployArgs );
  
