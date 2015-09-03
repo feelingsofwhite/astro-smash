@@ -5,20 +5,26 @@
   "repository": "git://github.com/feelingsofwhite/astrosmash",
   "main": "na",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "deploy": "node deploy.js"
   },
   "author": "@hadaad, @feelingsofwhite",
   "license": "MIT",
   "devDependencies": {
     "beepbeep": "^1.2.0",
+    "chalk": "^1.1.1",
     "gulp": "^3.9.0",
     "gulp-connect": "^2.2.0",
     "gulp-jshint": "^1.11.2",
     "gulp-open": "^0.3.2",
     "gulp-plumber": "^1.0.1",
+    "gulp-util": "^3.0.6",
     "gulp-watch": "^4.3.1",
     "http-server": "^0.8.0",
     "jshint-stylish": "^2.0.1",
-    "open": "0.0.5"
+    "open": "0.0.5",
+    "prompt": "^0.2.14",
+    "vinyl-ftp": "^0.4.4",
+    "yargs": "^3.23.0"
   }
 }

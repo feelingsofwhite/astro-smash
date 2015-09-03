@@ -3,6 +3,7 @@ var gulp = require('gulp');
 //var del = require('del');
 var connect = require('gulp-connect');
 var open = require('open');
+var chalk = require('chalk');
 //var less = require('gulp-less');
 //var path = require('path');
 //var sourcemaps = require('gulp-sourcemaps');
@@ -12,6 +13,10 @@ var jshintStylish = require('jshint-stylish')
 var plumber = require('gulp-plumber');
 var beep = require('beepbeep');
 var watch = require('gulp-watch');
+
+var gutil = require('gulp-util');
+var ftp = require('vinyl-ftp');
+
 
 gulp.task('lib', function(){
     return gulp
@@ -75,5 +80,46 @@ gulp.task('watch', function() {
     //gulp.watch('**/*.less', ['less']).on('change', logevent);
 });
 
+
+
+gulp.task('deployArgs', function(cb) {
+    var deploy = require("./deploy.js")
+    deploy.readFromConfigOrPrompt(function(err) {
+        if (err) {
+            process.exit(-1);
+        } else {
+            deploy.display();
+        }
+        cb()
+   });
+});
+
+//bad thing note: this updates newer, but leaves old files lying around :(, thus
+//todo: use conn.rmdir to blow away target dir entirely allowing for a clean upload
+// or fancier, investigate conn.filter to orphaned files and delete them, for a full sync routine, but that sounds like a bit of work
+gulp.task( 'deploy', ['deployArgs'], function() {
+    var args = require("./deploy.js").deployArgs;
+    var deployArgs = {
+        host:     args.host,
+        user:     args.user,
+        password: args.password,
+        log:      gutil.log,
+        path:     args.path
+    }
+    
+    var conn = ftp.create( deployArgs );
+ 
+    var globs = [
+        'public/**', //todo: build to a dest/ folder, using cdnify, so can upload without large phaser.io upload
+    ];
+ 
+    // using base = '.' will transfer everything to /public_html correctly 
+    // turn off buffering in gulp.src for best performance 
+ 
+    return gulp.src( globs, { base: './public/', buffer: false } ) 
+        .pipe( conn.newerOrDifferentSize( deployArgs.path ) ) // only upload newer files or files of differente size
+        .pipe( conn.dest( deployArgs.path ) );
+ 
+} );
 
 gulp.task('default', ['lib', 'js', 'connect', 'launch', 'watch']);
