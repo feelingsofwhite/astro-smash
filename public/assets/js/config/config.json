@@ -14,7 +14,7 @@
   "seekerBaseScore": 50,
   "smallBombBaseScore": 80,
   "heroDeathBaseScore": -100,
-
+  "ufoBaseScore": 100,
   "levelThresholds": [1000, 5000, 20000, 50000, 100000, 200000, 1000000],
   "freeManThreshold": 1000
 

@@ -25,7 +25,9 @@ var Game = {
       console.log("player lives before: " + player.lives.length);
       player.lives.push(
         game.add.sprite(game.world.width - ((player.lives.length)*(player.width+16)), game.world.height - player.height - 16, 'hero')
+
       );
+      this.mans++;
     console.log("player lives after: " + player.lives.length);
       nextFreeManAt += config.freeManThreshold;
 
@@ -198,22 +200,33 @@ var Game = {
     this.explosions = [];
   },
   create: function () {
-    var self = this;
     config = game.cache.getJSON('config');
-    score = 0;
-    gameHighScore = 0;
-    nextFreeManAt = config.freeManThreshold;
+    var currGameHighScore = this.state.states.Death_Scene.gameHighScore;
+    var currScore = this.state.states.Death_Scene.score;
+    var currMans = this.state.states.Death_Scene.mans;
+    var levelMultiplier = this.state.states.Death_Scene.levelMultiplier;
+    var freeManThreshold = this.state.states.Death_Scene.nextFreeManAt;
+    this.mans = typeof currMans !== 'undefined' ? currMans: config.initialHeroManCount;
+    if (this.mans === -1) {
+      this.gameOverManGAMEOVER();
+    }
+    var self = this;
+    if (!nextFreeManAt) {
+        nextFreeManAt = freeManThreshold? freeManThreshold : config.freeManThreshold;
+    }
     this.baddies = [];
     this.baddies.livingCount = function(){
       var result = 0;
       for (var li =0; li < self.baddies.length; li++)
-        if (self.baddies[i].alive)
+        if (self.baddies[li].alive)
           result++;
       return result;
     };
-    this.levelMultiplier = 1;
     var i;
-
+    this.explosions = [];
+    score = currScore?currScore:0;
+    gameHighScore = currGameHighScore?currGameHighScore:0;
+    this.levelMultiplier = levelMultiplier? levelMultiplier: 1;
     game.stage.backgroundColor = '#061f27';
 
     //  We're going to be using physics, so enable the Arcade Physics system
@@ -247,7 +260,7 @@ var Game = {
     //player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
     player.lives = [];
-    for(i=config.initialHeroManCount;i>0;i--)
+    for(i=this.mans;i>0;i--)
     {
       player.lives.push(
           game.add.sprite(game.world.width - (i*(player.width+16)), game.world.height - player.height - 16, 'hero')
@@ -353,34 +366,49 @@ var Game = {
       }
       var self = this;
       var life = player.lives.length-1;
-      while((life>=0) && (!player.lives[life].exists)){
-        life--;
-      }
-      if (life === -1) {
-        self.gameOverManGAMEOVER(baddie);
-      } else {
+
         baddie.kill();
-        player.lives[life].kill();
-      }
+        console.log('lives: ' + player.lives.length);
+        if (this.mans > 0) {
+          player.lives[life].kill();
+        }
+        this.scoreChange(-100 * this.levelMultiplier);
+        this.mans--;
+        console.log('lives: ' + player.lives.length);
+
     this.dieWithDignity();
   },
   dieWithDignity: function () {
     // create 5 sprites to expand away from player x, y, straight up, straight right, straight left, diagonal up right, and diagonal up left
-    this.dignity = true;
-    console.log("really impressive death scene");
-    this.dignity = false;
+    //this.dignity = true;
+    //console.log("really impressive death scene");
+    //this.dignity = false;
+
+      this.state.states.Death_Scene.x = player.x;
+      this.state.states.Death_Scene.y = player.y;
+      this.state.states.Death_Scene.gameHighScore = gameHighScore;
+      this.state.states.Death_Scene.score = score;
+      this.state.states.Death_Scene.mans = this.mans;
+      this.state.states.Death_Scene.levelMultiplier = this.levelMultiplier;
+      this.state.states.Death_Scene.nextFreeManAt = nextFreeManAt;
+      this.state.start('Death_Scene',false, false);
+
   },
-  gameOverManGAMEOVER: function(responsible){
+  gameOverManGAMEOVER: function(){
+    delete this.state.states.Death_Scene.x;
+    delete this.state.states.Death_Scene.y;
+    delete this.state.states.Death_Scene.gameHighScore;
+    delete this.state.states.Death_Scene.score;
+    delete this.state.states.Death_Scene.mans;
+    delete this.state.states.Death_Scene.levelMultiplier;
+    delete this.state.states.Death_Scene.nextFreeManAt;
     this.gameover = true;
-    player.body.velocity.x = 0;
     for (i=this.baddies.length-1;i>=0;i--)
     {
       var baddie = this.baddies[i];
-      baddie.body.velocity.x = 0;
-      baddie.body.velocity.y = 0;
+
     }
-    game.time.events.add(Phaser.Timer.SECOND * 2, function(){ player.kill(); responsible.kill(); }, this);
-    game.time.events.add(Phaser.Timer.SECOND * 3, function(){ this.state.start('Game_Over'); }, this);
+    this.state.start('Game_Over');
   },
   baddieHitGround: function (ground, baddie){
       baddie.hitGround();
